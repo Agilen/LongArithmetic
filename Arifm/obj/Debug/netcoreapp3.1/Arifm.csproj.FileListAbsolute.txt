@@ -1,0 +1,13 @@
+C:\Users\fonta\source\repos\Arifm\Arifm\bin\Debug\netcoreapp3.1\Arifm.exe
+C:\Users\fonta\source\repos\Arifm\Arifm\bin\Debug\netcoreapp3.1\Arifm.deps.json
+C:\Users\fonta\source\repos\Arifm\Arifm\bin\Debug\netcoreapp3.1\Arifm.runtimeconfig.json
+C:\Users\fonta\source\repos\Arifm\Arifm\bin\Debug\netcoreapp3.1\Arifm.runtimeconfig.dev.json
+C:\Users\fonta\source\repos\Arifm\Arifm\bin\Debug\netcoreapp3.1\Arifm.dll
+C:\Users\fonta\source\repos\Arifm\Arifm\bin\Debug\netcoreapp3.1\Arifm.pdb
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.csprojAssemblyReference.cache
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.AssemblyInfoInputs.cache
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.AssemblyInfo.cs
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.csproj.CoreCompileInputs.cache
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.dll
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.pdb
+C:\Users\fonta\source\repos\Arifm\Arifm\obj\Debug\netcoreapp3.1\Arifm.genruntimeconfig.cache

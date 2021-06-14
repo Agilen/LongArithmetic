@@ -1,0 +1,13 @@
+C:\Users\fonta\source\repos\Arifm\Test\bin\Debug\netcoreapp3.1\Test.exe
+C:\Users\fonta\source\repos\Arifm\Test\bin\Debug\netcoreapp3.1\Test.deps.json
+C:\Users\fonta\source\repos\Arifm\Test\bin\Debug\netcoreapp3.1\Test.runtimeconfig.json
+C:\Users\fonta\source\repos\Arifm\Test\bin\Debug\netcoreapp3.1\Test.runtimeconfig.dev.json
+C:\Users\fonta\source\repos\Arifm\Test\bin\Debug\netcoreapp3.1\Test.dll
+C:\Users\fonta\source\repos\Arifm\Test\bin\Debug\netcoreapp3.1\Test.pdb
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.csprojAssemblyReference.cache
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.AssemblyInfoInputs.cache
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.AssemblyInfo.cs
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.csproj.CoreCompileInputs.cache
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.dll
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.pdb
+C:\Users\fonta\source\repos\Arifm\Test\obj\Debug\netcoreapp3.1\Test.genruntimeconfig.cache
