@@ -33,7 +33,7 @@ namespace Arifm
             }
             else
             {
-                C = LongMulOneDigit(A, 647);
+                C = LongMul(A,B);
             }
             if (Write(C) == this.c)
             {
@@ -97,7 +97,7 @@ namespace Arifm
                     carry = 0;
                 
             }
-            C.Add(carry);
+            
 
             return C;
         }
@@ -127,99 +127,78 @@ namespace Arifm
             return C;
         } 
 
-        private List<UInt64> LongMulOneDigit(List<UInt64> A,UInt64 B)
+        private List<UInt64> LongMulOneDigit(List<UInt32> A,UInt32 B)
         {
-            string a = "";
-            string b = "";
-            List<UInt32> A32 = new List<UInt32>();
-            List<UInt32> B32 = new List<UInt32>();
-            List<UInt32> C1 = new List<UInt32>();
-            List<UInt32> C2 = new List<UInt32>();
-            List<UInt64> Sum = new List<UInt64>();
+
+            List<UInt64> C64 = new List<UInt64>();
+            List<UInt32> C = new List<UInt32>();
 
             UInt64 temp;
             UInt64 carry = 0;
 
-            
-            b = Convert.ToString((long)B, 16);
+            string a = "";
+            string b = "";
 
-            for (int i = 0; i < A.Count; i++)
+            for(int i = 0; i < A.Count; i++)
             {
-                a += Convert.ToString((long)A[i], 16);
-            }
-
-            while (a.Length % 16 == 0)
-            {
-                a = a.Insert(0, "0");
-            }
-            while (b.Length % 16 == 0)
-            {
-                b = b.Insert(0, "0");
-            }
-
-            for (int i = 0; i < a.Length; i += 8)
-            {
-                A32.Add(UInt32.Parse(a.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
-            }
-            A32.Reverse();
-
-            B32.Add(UInt32.Parse(b.Substring(0, 8), System.Globalization.NumberStyles.HexNumber));
-            B32.Add(UInt32.Parse(b.Substring(8, 8), System.Globalization.NumberStyles.HexNumber));
-            B32.Reverse();
-
-
-            for (int i = 0; i < A32.Count; i++)
-            {
-                temp = A32[i] * b[0] + carry;
-                C1.Add(Convert.ToUInt32(temp) & 0xffffffff);
+                temp = Convert.ToUInt64(A[i]) * Convert.ToUInt64(B) + carry;
+                C.Add((uint)(temp & 0xffffffff));
                 carry = temp >> 32;
             }
-            C1.Add(Convert.ToUInt32(carry));
-            C1.Add(0);
+            C.Add(Convert.ToUInt32(carry));
+            C.Add(0);
 
-            C2.Add(0x00000000);
-            for (int i = 0; i < A32.Count; i++)
+            for(int i = 0; i < C.Count; i++)
             {
-                temp = A32[i] * b[1] + carry;
-                C2.Add(Convert.ToUInt32(temp) & 0xffffffff);
-                carry = temp >> 32;
-            }
-            C2.Add(Convert.ToUInt32(carry));
-
-            List<UInt64> C64 = new List<UInt64>();
-            List<UInt64> C64_2 = new List<UInt64>();
-
-            a = "";
-            b = "";
-            for(int i = 0; i < C1.Count; i++)
-            {
-                a +=LeadZero8(Convert.ToString(C1[i], 16),i);
-                b += LeadZero8(Convert.ToString(C2[i], 16), i);
+                a +=LeadZero8(Convert.ToString(C[i], 16),i);
             }
 
             for (int i = 0; i < a.Length; i += 16)
             {
                 C64.Add(UInt64.Parse(a.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
-                C64_2.Add(UInt64.Parse(a.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
             }
-
-            Sum = LongAdd(C64,C64_2);
-            return Sum;
+                        
+            return C64;
             
         }
 
         private List<UInt64> LongMul(List<UInt64> A, List<UInt64> B)
         {
+            string a = "";
+            string b = "";
+            int lenght = A.Count*2;
             List<UInt64> temp = new List<UInt64>();
             List<UInt64> C = new List<UInt64>();
-            int lenght = A.Count;
-            temp = PrepList(temp, A.Count * 2);
-            C = PrepList(C, A.Count * 2);
+            List<UInt32> A32 = new List<UInt32>();
+            List<UInt32> B32 = new List<UInt32>();
+
+            for(int i = 0; i < A.Count; i++)
+            {
+                a +=LeadZero(Convert.ToString((long)A[i], 16),1);
+                b +=LeadZero(Convert.ToString((long)B[i], 16),1);
+            }
+           
+
+            for (int i = 0; i < a.Length; i += 8)
+            {
+                A32.Add(UInt32.Parse(a.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
+            }
+        
+
+            for (int i = 0; i < b.Length; i += 8)
+            {
+                B32.Add(UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
+            }
+           
+
+            temp = PrepList(temp, A32.Count + 1 );
+            C = PrepList(C, A32.Count );
 
             for (int i = 0; i < lenght; i++)
             {
                 CleanTemp(temp);
-                temp = LongMulOneDigit(A, B[i]);
+                temp = LongMulOneDigit(A32, B32[i]);
+                temp = PrepList(temp, A32.Count + 1);
                 temp = LongShiftDigitsToHighMul(temp, i);
                 C = LongAdd(C, temp);
             }
@@ -286,13 +265,10 @@ namespace Arifm
         
         private List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L,int i)
         {
-            for(int j = 0; j < i; j++)
-            {
-                L.Add(0);
-            }
+            
             if(i!=0 || i == L.Count/2)
             {
-                for(int j = L.Count / 2 - 1; j >= 0; j--)
+                for (int j = L.Count/2 - 1; j >= 0; j--)
                 {
                     L[j + i] = L[j];
                     L[j] = 0;

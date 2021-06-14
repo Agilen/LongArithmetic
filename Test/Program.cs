@@ -9,8 +9,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            UInt64 A = 0x2C7351BBE69A2D7B;
-            UInt64 B = 0xB63D50C12D299561;
+            Console.WriteLine("f80a0dfb70665b55645b5832f119f911fbe6eaa50950d49e2e126586c5dcc8e7872852a1".Length);
 
 
            
