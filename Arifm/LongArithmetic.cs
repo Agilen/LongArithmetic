@@ -83,22 +83,17 @@ namespace Arifm
             UInt64 temp;
             UInt64 carry = 0;
             List<UInt64> C = new List<UInt64>();
-            int lenght = A.Count;
+            int lenght = B.Count;
             
             for(int i = 0; i < lenght; i++)
             {
                 temp = A[i] + B[i] + carry;
                 C.Add(temp & 0xffffffffffffffff);
                 if (IsCarryExist(A[i], B[i], carry) == true)
-                {
                     carry = 1;
-                }
                 else
-                    carry = 0;
-                
+                    carry = 0;   
             }
-            
-
             return C;
         }
 
@@ -127,39 +122,68 @@ namespace Arifm
             return C;
         } 
 
-        private List<UInt64> LongMulOneDigit(List<UInt32> A,UInt32 B)
+        private List<UInt64> LongMulOneDigit(List<UInt32> A,UInt32 B1,UInt32 B2)
         {
-
-            List<UInt64> C64 = new List<UInt64>();
-            List<UInt32> C = new List<UInt32>();
 
             UInt64 temp;
             UInt64 carry = 0;
+            string str = "";
+            List<UInt32> c = new List<UInt32>();
+            List<UInt32> c2 = new List<UInt32>();
+            List<UInt64> C = new List<UInt64>();
+            List<UInt64> C2 = new List<UInt64>();
+            List<UInt64> Res = new List<UInt64>();
 
-            string a = "";
-            string b = "";
-
-            for(int i = 0; i < A.Count; i++)
+            for (int i = 0; i < A.Count; i++)
             {
-                temp = Convert.ToUInt64(A[i]) * Convert.ToUInt64(B) + carry;
-                C.Add((uint)(temp & 0xffffffff));
+                temp = Convert.ToUInt64(A[i]) * Convert.ToUInt64(B1) + carry;
+                c.Add(Convert.ToUInt32(temp & 0xffffffff));
                 carry = temp >> 32;
             }
-            C.Add(Convert.ToUInt32(carry));
-            C.Add(0);
+            c.Add(Convert.ToUInt32(carry));
 
-            for(int i = 0; i < C.Count; i++)
+            if (c.Count % 2 != 0)
+                c.Add(0);
+
+            c2.Add(0);
+            carry = 0;
+            temp = 0;
+            for (int i = 0; i < A.Count; i++)
             {
-                a +=LeadZero8(Convert.ToString(C[i], 16),i);
+                temp = Convert.ToUInt64(a[i]) * Convert.ToUInt64(B2) + carry;
+                c2.Add(Convert.ToUInt32(temp & 0xffffffff));
+                carry = temp >> 32;
+            }
+            c2.Add(Convert.ToUInt32(carry));
+
+            c.Reverse();
+            c2.Reverse();
+
+            for (int i = 0; i < c.Count; i++)
+            {
+                str += LeadZero8(Convert.ToString(c[i], 16));
+            }
+            for (int i = 0; i < str.Length; i += 16)
+            {
+                C.Add(UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
             }
 
-            for (int i = 0; i < a.Length; i += 16)
+            str = "";
+            for (int i = 0; i < c.Count; i++)
             {
-                C64.Add(UInt64.Parse(a.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
+                str += LeadZero8(Convert.ToString(c2[i], 16));
             }
-                        
-            return C64;
-            
+            for (int i = 0; i < str.Length; i += 16)
+            {
+                C2.Add(UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
+
+            }
+            C.Reverse();
+            C2.Reverse();
+            Res = LongAdd(C, C2);
+
+            return Res;
+
         }
 
         private List<UInt64> LongMul(List<UInt64> A, List<UInt64> B)
@@ -171,38 +195,53 @@ namespace Arifm
             List<UInt64> C = new List<UInt64>();
             List<UInt32> A32 = new List<UInt32>();
             List<UInt32> B32 = new List<UInt32>();
-
+            Console.WriteLine(Write(B));
+            A.Reverse();
+            B.Reverse();
             for(int i = 0; i < A.Count; i++)
             {
                 a +=LeadZero(Convert.ToString((long)A[i], 16),1);
-                b +=LeadZero(Convert.ToString((long)B[i], 16),1);
+            }
+
+            for (int i=0; i < B.Count; i++)
+            {
+                b += LeadZero(Convert.ToString((long)B[i], 16), 1);
             }
            
-
             for (int i = 0; i < a.Length; i += 8)
             {
                 A32.Add(UInt32.Parse(a.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
         
-
             for (int i = 0; i < b.Length; i += 8)
             {
                 B32.Add(UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
-           
-
-            temp = PrepList(temp, A32.Count + 1 );
-            C = PrepList(C, A32.Count );
-
-            for (int i = 0; i < lenght; i++)
+            UInt32 k = 0;
+            Console.WriteLine();
+            A32.Reverse();
+            B32.Reverse();
+            for(int i = 0; i < A32.Count; i++)
             {
-                CleanTemp(temp);
-                temp = LongMulOneDigit(A32, B32[i]);
-                temp = PrepList(temp, A32.Count + 1);
-                temp = LongShiftDigitsToHighMul(temp, i);
-                C = LongAdd(C, temp);
+                Console.Write(LeadZero8(Convert.ToString(A32[i],16))+ " ");
             }
-
+            Console.WriteLine();
+            for (int i = 0; i < B32.Count; i++)
+            {
+                Console.Write(LeadZero8(Convert.ToString(B32[i],16)) + " ");
+            }
+            Console.WriteLine();
+            for (int i = 0; i < lenght; i+=2)
+            {
+                temp = LongMulOneDigit(A32, B32[i],B32[i+1]);
+                Console.WriteLine(Write(temp));
+                temp = LongShiftDigitsToHighMul(temp, i/2);
+                Console.WriteLine(Write(temp));
+                C = PrepList(C, temp.Count);
+                C = LongAdd(C, temp);
+                Console.WriteLine(Write(C));
+            }
+            
             return C;
 
         }
@@ -265,15 +304,20 @@ namespace Arifm
         
         private List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L,int i)
         {
-            
-            if(i!=0 || i == L.Count/2)
+            if (i == 0)
+                return L;
+
+            for (int k = 0; k < i; k++)
             {
-                for (int j = L.Count/2 - 1; j >= 0; j--)
+                L.Add(0);
+
+                for (int j = L.Count - 1; j >= 1; j--)
                 {
-                    L[j + i] = L[j];
-                    L[j] = 0;
+                    L[j] = L[j-1];
+                    L[j-1] = 0;
                 }
             }
+            
             return L;
         }
 
@@ -285,7 +329,7 @@ namespace Arifm
 
         private List<UInt64> PrepList(List<UInt64> L,int n)
         {
-            for(int i = L.Count; i < n+1; i++)
+            for(int i = L.Count; i < n; i++)
             {
                 L.Add(0);
             }
@@ -307,13 +351,9 @@ namespace Arifm
             string output = "";
             for(int i = W.Count - 1; i >= 0; i--)
             {
-                //output+= Convert.ToString(W[i], 16);
                output+=LeadZero(W[i].ToString("X"),i);
             }
-            if (output[0] == '0')
-            {
-                output = output.Substring(1);
-            }
+          
             return output;
         }
 
@@ -323,8 +363,6 @@ namespace Arifm
             string b = "";
             string c = "";
             int lenght = 0;
-            Convert.ToString(15, 16);
-            A.ToString();
             a = FillBits(Convert.ToString((long)A, 2));
             b = FillBits(Convert.ToString((long)B, 2));
             long Ct = (long)(A + B);
@@ -374,19 +412,15 @@ namespace Arifm
             return bits;
         }
 
-        private string LeadZero8(string bits, int i)
+        private string LeadZero8(string bits)
         {
-            if (i != C.Count - 1)
+            if (bits.Length < 8)
             {
-                if (bits.Length < 8)
+                while (bits.Length < 8)
                 {
-                    while (bits.Length < 8)
-                    {
-                        bits = bits.Insert(0, "0");
-                    }
+                    bits = bits.Insert(0, "0");
                 }
             }
-
             return bits;
         }
         private string LeadZero(string bits,int i)
