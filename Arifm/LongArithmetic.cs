@@ -150,7 +150,7 @@ namespace Arifm
             temp = 0;
             for (int i = 0; i < A.Count; i++)
             {
-                temp = Convert.ToUInt64(a[i]) * Convert.ToUInt64(B2) + carry;
+                temp = Convert.ToUInt64(A[i]) * Convert.ToUInt64(B2) + carry;
                 c2.Add(Convert.ToUInt32(temp & 0xffffffff));
                 carry = temp >> 32;
             }
@@ -195,7 +195,7 @@ namespace Arifm
             List<UInt64> C = new List<UInt64>();
             List<UInt32> A32 = new List<UInt32>();
             List<UInt32> B32 = new List<UInt32>();
-            Console.WriteLine(Write(B));
+            
             A.Reverse();
             B.Reverse();
             for(int i = 0; i < A.Count; i++)
@@ -217,29 +217,20 @@ namespace Arifm
             {
                 B32.Add(UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
-            UInt32 k = 0;
+            
             Console.WriteLine();
             A32.Reverse();
             B32.Reverse();
-            for(int i = 0; i < A32.Count; i++)
-            {
-                Console.Write(LeadZero8(Convert.ToString(A32[i],16))+ " ");
-            }
-            Console.WriteLine();
-            for (int i = 0; i < B32.Count; i++)
-            {
-                Console.Write(LeadZero8(Convert.ToString(B32[i],16)) + " ");
-            }
-            Console.WriteLine();
+           
             for (int i = 0; i < lenght; i+=2)
             {
                 temp = LongMulOneDigit(A32, B32[i],B32[i+1]);
-                Console.WriteLine(Write(temp));
+                
                 temp = LongShiftDigitsToHighMul(temp, i/2);
-                Console.WriteLine(Write(temp));
+                
                 C = PrepList(C, temp.Count);
                 C = LongAdd(C, temp);
-                Console.WriteLine(Write(C));
+                
             }
             
             return C;

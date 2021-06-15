@@ -49,7 +49,7 @@ namespace Arifm
 
             Read(testMulPath);
             Console.WriteLine("---Long Mul---");
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < A.Count; i++)
             {
                 LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "*");
             }
