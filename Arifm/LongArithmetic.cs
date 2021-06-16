@@ -43,8 +43,9 @@ namespace Arifm
             {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
-            Console.WriteLine((Write(C)));
-            Console.WriteLine(this.c);
+            Console.WriteLine($"Result: {Write(C)}");
+            Console.WriteLine($"Expected Result: {this.c}");
+            Console.WriteLine();
             Console.ResetColor();
         }
 
@@ -218,7 +219,6 @@ namespace Arifm
                 B32.Add(UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
             
-            Console.WriteLine();
             A32.Reverse();
             B32.Reverse();
            
@@ -237,12 +237,12 @@ namespace Arifm
 
         }
 
-        private (List<UInt32>,List<UInt32>) LongDivMod(List<UInt32> A,List<UInt32> B)
+        private (List<UInt64>,List<UInt64>) LongDivMod(List<UInt64> A,List<UInt64> B)
         {
             int k, t;
-            List<UInt32> R = new List<UInt32>();
-            List<UInt32> Q = new List<UInt32>();
-            List<UInt32> C = new List<UInt32>();
+            List<UInt64> R = new List<UInt64>();
+            List<UInt64> Q = new List<UInt64>();
+            List<UInt64> C = new List<UInt64>();
            // PrepList(Q, A.Count);
             R = A;
             k = BitLenght(B);
@@ -263,7 +263,7 @@ namespace Arifm
             return (Q, R);
         }
 
-        private int LongCmp(List<UInt32> A,List<UInt32> B)
+        private int LongCmp(List<UInt64> A,List<UInt64> B)
         {
             int i = A.Count - 1;
             do
@@ -283,18 +283,10 @@ namespace Arifm
                 }
             } while (A[i]==B[i]);
         }
-
-        private List<UInt64> CleanTemp(List<UInt64> temp)
-        {
-            for(int i = 0; i < temp.Count; i++)
-            {
-                temp[i] = 0;
-            }
-            return temp;
-        }
         
         private List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L,int i)
         {
+           
             if (i == 0)
                 return L;
 
@@ -309,11 +301,47 @@ namespace Arifm
                 }
             }
             
+           
+
             return L;
         }
 
-        private List<UInt32> LongShiftDigitsToHighDiv(List<UInt32> L,int i)
+        private List<UInt64> LongShiftDigitsToHighDiv(List<UInt64> L,int i)
         {
+            if (i <= 0)
+                return L;
+
+            string buf = "";
+            int mod = i % 64;
+            int m = (i - mod) / 64;
+            for (int k = 0; k < m; k++)
+            {
+                L.Add(0);
+
+                for (int j = L.Count - 1; j >= 1; j--)
+                {
+                    L[j] = L[j - 1];
+                    L[j - 1] = 0;
+                }
+            }
+
+            for (int j = L.Count - 1; j >= 0; j--)
+            {
+                buf += LeadZeroBin((Convert.ToString((long)L[j], 2)));
+            }
+
+            for (int j = 0; j < mod; j++)
+            {
+                buf = buf.Insert(buf.Length, "0");
+            }
+
+            L.Clear();
+
+            for (int j = buf.Length - 64; j >= 0; j -= 64)
+            {
+                L.Add(Convert.ToUInt64(buf.Substring(j, 64), 2));
+            }
+            L.Add(Convert.ToUInt64(buf.Substring(0, mod), 2));
 
             return L;
         }
@@ -327,12 +355,12 @@ namespace Arifm
             return L;
         }
 
-        private int BitLenght(List<UInt32> L)
+        private int BitLenght(List<UInt64> L)
         {
             int l = 0;
             for(int i = 0; i < L.Count; i++)
             {
-                l += Convert.ToString(L[i],2).Length;
+                l += Convert.ToString((long)L[i],2).Length;
             }
             return l;
         }
@@ -429,6 +457,20 @@ namespace Arifm
             return bits;
         }
 
-       
+        private string LeadZeroBin(string bits)
+        {
+
+            if (bits.Length < 64)
+            {
+                while (bits.Length < 64)
+                {
+                    bits = bits.Insert(0, "0");
+                }
+            }
+
+            return bits;
+        }
+
+
     }
 }

@@ -27,6 +27,7 @@ namespace Arifm
             string testAddPath = "Data/test_add.arith";
             string testSubPath = "Data/test_sub.arith";
             string testMulPath = "Data/test_mul.arith";
+            string testDivPath = "Dara/test_div.arith";
             List<string> A = new List<string>();
             List<string> B = new List<string>();
             List<string> C = new List<string>();
@@ -52,6 +53,14 @@ namespace Arifm
             for (int i = 0; i < A.Count; i++)
             {
                 LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "*");
+            }
+
+            Read(testMulPath);
+            Console.WriteLine("---Long Div---");
+
+            for (int i = 0; i < A.Count; i++)
+            {
+                LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "/");
             }
 
 

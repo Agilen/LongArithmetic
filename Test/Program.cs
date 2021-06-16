@@ -7,198 +7,39 @@ namespace Test
 {
     class Program
     {
+        //1100101101010
+        //0000001110111011110010010000111111111011000100011110010011101001
+        //0110010110100001101101111100101000110110010000101111010010110011
+        //1001100010111010000001101100101000100111000001010100111011110110
+        //0001110111010011001011001100001011111010111101010100000000000000
+        //0000000000000000000000000000000000000000000000000000000000000000
+
+        //196a
+        //03bbc90ffb11e4e9
+        //65a1b7ca3642f4b3
+        //98ba06ca27054ef6
+        //1dd32cc2faf54000 
+        //0000000000000000
         static void Main(string[] args)
         {
-
-            List<UInt32> a = new List<UInt32>();
-            a.Add(0xE69A2D7B);
-            a.Add(0x2C7351BB);
-            List<UInt32> b = new List<UInt32>();
-            b.Add(0x2D299561);
-            b.Add(0xB63D50C1);
-
-
-            T(a, b);
-
-
+            List<UInt64> A = new List<UInt64>();
+            A.Add(0x65A80EEF243FEC47);
+            A.Add(0x93A59686DF28D90B);
+            A.Add(0xD2CE62E81B289C15);
+            A.Add(0x3BD8774CB30BEBD5);
             
-
+            LongShiftDigitsToHighDiv(A, 0);
         }
 
-        static void T(List<UInt32> a, List<UInt32> b)
+        static void LongShiftDigitsToHighDiv(List<UInt64> L, int i)
         {
-            UInt64 temp;
-            UInt64 carry = 0;
-            string str= "";
-            List<UInt32> c = new List<UInt32>();
-            List<UInt32> c2 = new List<UInt32>();
-            List<UInt64> C = new List<UInt64>();
-            List<UInt64> C2 = new List<UInt64>();
-            List<UInt64> Res = new List<UInt64>();
+            if (i <= 0)
+                return L;
 
-            for (int i = 0; i < a.Count; i++)
-            {
-                temp = Convert.ToUInt64(a[i]) * Convert.ToUInt64(b[0])+carry;
-                c.Add(Convert.ToUInt32(temp & 0xffffffff));
-                carry = temp >> 32;
-            }
-            c.Add(Convert.ToUInt32(carry));
-            
-            if (c.Count % 2 != 0)
-                c.Add(0);
-
-            c2.Add(0);
-            carry = 0;
-            temp = 0;
-            for(int i = 0; i < a.Count; i++)
-            {
-                temp = Convert.ToUInt64(a[i]) * Convert.ToUInt64(b[1]) + carry;
-                c2.Add(Convert.ToUInt32(temp & 0xffffffff));
-                carry = temp >> 32;
-            }
-            c2.Add(Convert.ToUInt32(carry));
-
-            c.Reverse();
-            c2.Reverse();
-
-            for (int i = 0; i < c.Count; i++)
-            {
-                str +=P(Convert.ToString(c[i], 16));
-            }
-            for (int i = 0; i < str.Length; i += 16)
-            {
-                C.Add(UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
-            }
-           
-            str = "";
-            for (int i = 0; i < c.Count; i++)
-            {
-                str += P(Convert.ToString(c2[i], 16));
-            }
-            for (int i = 0; i < str.Length; i += 16)
-            {
-                C2.Add(UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
-
-            }
-            C.Reverse();
-            C2.Reverse();
-            Res = LongAdd(C, C2);
-
-            List<UInt64> test = new List<UInt64>();
-            
-            for(int i = Res.Count - 1; i >= 0; i--)
-            {
-                Console.Write(P16(Convert.ToString((long)Res[i], 16)));
-            }
-            Console.WriteLine();
-            test = Res;
-            test=LongShiftDigitsToHighMul(test, 4);
-            for(int i = 0; i < test.Count; i++)
-            {
-                Console.Write(P16(Convert.ToString((long)test[i], 16)));
-            }
-        }
-
-        static  List<UInt64> LongAdd(List<UInt64> A, List<UInt64> B)
-        {
-            UInt64 temp;
-            UInt64 carry = 0;
-            List<UInt64> C = new List<UInt64>();
-            int lenght = B.Count;
-
-            for (int i = 0; i < lenght; i++)
-            {
-                temp = A[i] + B[i] + carry;
-                C.Add(temp & 0xffffffffffffffff);
-                if (IsCarryExist(A[i], B[i], carry) == true)
-                    carry = 1;
-                else
-                    carry = 0;
-            }
-            return C;
-        }
-
-        static bool IsCarryExist(UInt64 A, UInt64 B, UInt64 carry)
-        {
-            string a = "";
-            string b = "";
-            string c = "";
-            int lenght = 0;
-            Convert.ToString(15, 16);
-            A.ToString();
-            a = FillBits(Convert.ToString((long)A, 2));
-            b = FillBits(Convert.ToString((long)B, 2));
-            long Ct = (long)(A + B);
-            c = FillBits(Convert.ToString((long)Ct, 2));
-            lenght = a.Length;
-
-
-            if (a[0] == '1' && b[0] == '1')
-            {
-                return true;
-            }
-            else if (a[0] == '0' && b[0] == '0')
-            {
-                return false;
-            }
-            else
-            {
-                for (int i = 1; i < a.Length; i++)
-                {
-                    if (a[i] == '1' && b[i] == '1')
-                    {
-                        return true;
-                    }
-                    else if (a[i] == '0' && b[i] == '0')
-                    {
-                        return false;
-                    }
-                }
-                return false;
-            }
-        }
-
-        static string FillBits(string bits)
-        {
-            if (bits.Length < 64)
-            {
-                while (bits.Length < 64)
-                {
-                    bits = bits.Insert(0, "0");
-                }
-            }
-            return bits;
-        }
-
-        static string P(string s)
-        {
-            if (s.Length < 8)
-            {
-                while (s.Length < 8)
-                {
-                    s = s.Insert(0, "0");
-                }
-            }
-            return s;
-        }
-
-        static string P16(string s)
-        {
-            if (s.Length < 16)
-            {
-                while (s.Length < 16)
-                {
-                    s = s.Insert(0, "0");
-                }
-            }
-            return s;
-        }
-
-        static List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L, int i)
-        {
-
-
-            for (int k = 0; k < i; k++)
+            string buf = "";
+            int mod = i % 64;
+            int m = (i - mod) / 64;
+            for (int k = 0; k < m; k++)
             {
                 L.Add(0);
 
@@ -209,7 +50,56 @@ namespace Test
                 }
             }
 
-            return L;
+            for (int j = L.Count - 1; j >= 0; j--)
+            {
+                buf += LeadZeroBin((Convert.ToString((long)L[j], 2)));
+            } 
+
+            for (int j = 0; j < mod; j++)
+            {
+                buf = buf.Insert(buf.Length, "0");
+            }
+          
+            L.Clear();
+            
+            for (int j = buf.Length - 64; j >= 0; j -=64)
+            {
+                L.Add(Convert.ToUInt64(buf.Substring(j, 64), 2));
+            }
+            L.Add(Convert.ToUInt64(buf.Substring(0, mod), 2));
+
+            for(int j = L.Count - 1; j >= 0; j--)
+            {
+                Console.Write(LeadZero(Convert.ToString((long)L[j], 16)));
+            }
+        }
+
+        static string LeadZero(string bits)
+        {
+            
+                if (bits.Length < 16)
+                {
+                    while (bits.Length < 16)
+                    {
+                        bits = bits.Insert(0, "0");
+                    }
+                }
+            
+            return bits;
+        }
+
+        static string LeadZeroBin(string bits)
+        {
+
+            if (bits.Length < 64)
+            {
+                while (bits.Length < 64)
+                {
+                    bits = bits.Insert(0, "0");
+                }
+            }
+
+            return bits;
         }
     }
 }
