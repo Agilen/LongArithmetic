@@ -15,9 +15,9 @@ namespace Arifm
         private string b = "";
         private string c = "";
 
-        
 
-        public LongArithmetic(string a,string b,string c,string oper)
+
+        public LongArithmetic(string a, string b, string c, string oper)
         {
             this.a = a;
             this.b = b;
@@ -27,13 +27,13 @@ namespace Arifm
             {
                 C = LongAdd(A, B);
             }
-            else if(oper == "-")
+            else if (oper == "-")
             {
                 C = LongSub(A, B);
             }
             else
             {
-                C = LongMul(A,B);
+                C = LongMul(A, B);
             }
             if (Write(C) == this.c)
             {
@@ -49,13 +49,13 @@ namespace Arifm
             Console.ResetColor();
         }
 
-        
+
         private void FillList()
         {
             A.Clear();
             B.Clear();
             C.Clear();
- 
+
             a = FillBits(a);
             b = FillBits(b);
             int lengthA = a.Length;
@@ -63,7 +63,7 @@ namespace Arifm
             int lengthC = c.Length;
             int mod = lengthA % 16;
 
-            for(int i=0; i < lengthA - mod; i += 16)
+            for (int i = 0; i < lengthA - mod; i += 16)
             {
                 A.Add(UInt64.Parse(a.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
             }
@@ -85,20 +85,20 @@ namespace Arifm
             UInt64 carry = 0;
             List<UInt64> C = new List<UInt64>();
             int lenght = B.Count;
-            
-            for(int i = 0; i < lenght; i++)
+
+            for (int i = 0; i < lenght; i++)
             {
                 temp = A[i] + B[i] + carry;
                 C.Add(temp & 0xffffffffffffffff);
                 if (IsCarryExist(A[i], B[i], carry) == true)
                     carry = 1;
                 else
-                    carry = 0;   
+                    carry = 0;
             }
             return C;
         }
 
-        private List<UInt64> LongSub(List<UInt64> A,List<UInt64> B)
+        private List<UInt64> LongSub(List<UInt64> A, List<UInt64> B)
         {
             List<UInt64> C = new List<UInt64>();
             UInt64 borrow = 0;
@@ -106,11 +106,11 @@ namespace Arifm
             for (int i = 0; i < lenght; i++)
             {
                 C.Add(A[i] - B[i] - borrow);
-                if(B[i]!=0 && (B[i]+borrow)==0)
+                if (B[i] != 0 && (B[i] + borrow) == 0)
                 {
                     borrow = 1;
                 }
-                else if (A[i] >= (B[i]+borrow))
+                else if (A[i] >= (B[i] + borrow))
                 {
                     borrow = 0;
                 }
@@ -118,12 +118,12 @@ namespace Arifm
                 {
                     borrow = 1;
                 }
-                
+
             }
             return C;
-        } 
+        }
 
-        private List<UInt64> LongMulOneDigit(List<UInt32> A,UInt32 B1,UInt32 B2)
+        private List<UInt64> LongMulOneDigit(List<UInt32> A, UInt32 B1, UInt32 B2)
         {
 
             UInt64 temp;
@@ -191,59 +191,59 @@ namespace Arifm
         {
             string a = "";
             string b = "";
-            int lenght = A.Count*2;
+            int lenght = A.Count * 2;
             List<UInt64> temp = new List<UInt64>();
             List<UInt64> C = new List<UInt64>();
             List<UInt32> A32 = new List<UInt32>();
             List<UInt32> B32 = new List<UInt32>();
-            
+
             A.Reverse();
             B.Reverse();
-            for(int i = 0; i < A.Count; i++)
+            for (int i = 0; i < A.Count; i++)
             {
-                a +=LeadZero(Convert.ToString((long)A[i], 16),1);
+                a += LeadZero(Convert.ToString((long)A[i], 16), 1);
             }
 
-            for (int i=0; i < B.Count; i++)
+            for (int i = 0; i < B.Count; i++)
             {
                 b += LeadZero(Convert.ToString((long)B[i], 16), 1);
             }
-           
+
             for (int i = 0; i < a.Length; i += 8)
             {
                 A32.Add(UInt32.Parse(a.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
-        
+
             for (int i = 0; i < b.Length; i += 8)
             {
                 B32.Add(UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
-            
+
             A32.Reverse();
             B32.Reverse();
-           
-            for (int i = 0; i < lenght; i+=2)
+
+            for (int i = 0; i < lenght; i += 2)
             {
-                temp = LongMulOneDigit(A32, B32[i],B32[i+1]);
-                
-                temp = LongShiftDigitsToHighMul(temp, i/2);
-                
+                temp = LongMulOneDigit(A32, B32[i], B32[i + 1]);
+
+                temp = LongShiftDigitsToHighMul(temp, i / 2);
+
                 C = PrepList(C, temp.Count);
                 C = LongAdd(C, temp);
-                
+
             }
-            
+
             return C;
 
         }
 
-        private (List<UInt64>,List<UInt64>) LongDivMod(List<UInt64> A,List<UInt64> B)
+        private (List<UInt64>, List<UInt64>) LongDivMod(List<UInt64> A, List<UInt64> B)
         {
             int k, t;
             List<UInt64> R = new List<UInt64>();
             List<UInt64> Q = new List<UInt64>();
             List<UInt64> C = new List<UInt64>();
-           // PrepList(Q, A.Count);
+            // PrepList(Q, A.Count);
             R = A;
             k = BitLenght(B);
 
@@ -258,12 +258,12 @@ namespace Arifm
                 }
                 //R = LongSub(R, C);
 
-            } while (LongCmp(R,B)==0 || LongCmp(R,B)==1);
+            } while (LongCmp(R, B) == 0 || LongCmp(R, B) == 1);
 
             return (Q, R);
         }
 
-        private int LongCmp(List<UInt64> A,List<UInt64> B)
+        private int LongCmp(List<UInt64> A, List<UInt64> B)
         {
             int i = A.Count - 1;
             do
@@ -275,18 +275,18 @@ namespace Arifm
                 }
                 else if (A[i] > B[i])
                 {
-                    return 1;    
+                    return 1;
                 }
                 else
                 {
                     return -1;
                 }
-            } while (A[i]==B[i]);
+            } while (A[i] == B[i]);
         }
-        
-        private List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L,int i)
+
+        private List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L, int i)
         {
-           
+
             if (i == 0)
                 return L;
 
@@ -296,17 +296,17 @@ namespace Arifm
 
                 for (int j = L.Count - 1; j >= 1; j--)
                 {
-                    L[j] = L[j-1];
-                    L[j-1] = 0;
+                    L[j] = L[j - 1];
+                    L[j - 1] = 0;
                 }
             }
-            
-           
+
+
 
             return L;
         }
 
-        private List<UInt64> LongShiftDigitsToHighDiv(List<UInt64> L,int i)
+        private List<UInt64> LongShiftDigitsToHighDiv(List<UInt64> L, int i)
         {
             if (i <= 0)
                 return L;
@@ -346,9 +346,9 @@ namespace Arifm
             return L;
         }
 
-        private List<UInt64> PrepList(List<UInt64> L,int n)
+        private List<UInt64> PrepList(List<UInt64> L, int n)
         {
-            for(int i = L.Count; i < n; i++)
+            for (int i = L.Count; i < n; i++)
             {
                 L.Add(0);
             }
@@ -358,9 +358,9 @@ namespace Arifm
         private int BitLenght(List<UInt64> L)
         {
             int l = 0;
-            for(int i = 0; i < L.Count; i++)
+            for (int i = 0; i < L.Count; i++)
             {
-                l += Convert.ToString((long)L[i],2).Length;
+                l += Convert.ToString((long)L[i], 2).Length;
             }
             return l;
         }
@@ -368,11 +368,11 @@ namespace Arifm
         private string Write(List<UInt64> W)
         {
             string output = "";
-            for(int i = W.Count - 1; i >= 0; i--)
+            for (int i = W.Count - 1; i >= 0; i--)
             {
-               output+=LeadZero(W[i].ToString("X"),i);
+                output += LeadZero(W[i].ToString("X"), i);
             }
-          
+
             return output;
         }
 
@@ -414,8 +414,8 @@ namespace Arifm
                 return false;
 
             }
-            
-            
+
+
         }
 
 
@@ -442,9 +442,9 @@ namespace Arifm
             }
             return bits;
         }
-        private string LeadZero(string bits,int i)
+        private string LeadZero(string bits, int i)
         {
-            if (i != C.Count-1)
+            if (i != C.Count - 1)
             {
                 if (bits.Length < 16)
                 {
@@ -474,3 +474,4 @@ namespace Arifm
 
     }
 }
+
