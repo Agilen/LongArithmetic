@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Arifm
@@ -23,6 +24,7 @@ namespace Arifm
             }
             Console.WriteLine(Write(C));
             Console.WriteLine(c);
+            Console.ReadLine();
         }
 
         private void FillData(string a,string b)
@@ -206,10 +208,12 @@ namespace Arifm
 
         }
 
-        private UInt64[] LongDivMod(UInt64[] A,UInt64[] B)
+        private UInt64[] LongDivMod(UInt64[] A, UInt64[] B)
         {
             int k = BitLength(B);
-            int t=0;
+            int t = 0;
+            int nb = 0;
+            int iter = 0;
             UInt64[] R = A;
             UInt64[] Q = new UInt64[A.Length - B.Length];
             UInt64[] C = new UInt64[A.Length];
@@ -217,23 +221,47 @@ namespace Arifm
             {
                 t = BitLength(R);
                 C = LongShiftDigitsToHighDiv(B, t - k);
-            }
-            if (LongCmp(R, C) == -1)
-            {
-                t--;
-                C = LongShiftDigitsToHighDiv(B, t - k);
-            }
-            R = LongSub(R, C);
 
-            Q[Convert.ToInt64(Math.Floor(Convert.ToDecimal((t - k)/64)))] += Convert.ToUInt64(2 << (t - k - 1));
-
+                if (LongCmp(R, C) == -1)
+                {
+                    t--;
+                    C = LongShiftDigitsToHighDiv(B, t - k);
+                }
+               
+                R = LongSub(R, C);
+                //nb = Convert.ToInt32(Math.Floor(Convert.ToDecimal((t - k) / 64)));
+                //Q[nb] += Convert.ToUInt64(2 << (t - k - 1));
+            }
             return R;
         }
 
-        private int LongCmp(UInt64[] A, UInt64[] B)
+        static int LongCmp(UInt64[] A, UInt64[] B)
         {
+            int minLength = new int[2] { A.Length, B.Length }.Min();
 
-            for (int i = A.Length - 1; i >= 0; i--)
+            if (A.Length != B.Length)
+            {
+                if (A.Length > B.Length)
+                {
+                    minLength = B.Length;
+                    for (int i = A.Length - 1; i > minLength - 1; i--)
+                    {
+                        if (A[i] != 0)
+                            return 1;
+                    }
+                }
+                else
+                {
+                    minLength = A.Length;
+                    for (int i = B.Length - 1; i > minLength - 1; i--)
+                    {
+                        if (B[i] != 0)
+                            return -1;
+                    }
+                }
+            }
+
+            for (int i = minLength - 1; i >= 0; i--)
             {
                 if (A[i] > B[i])
                 {
@@ -271,11 +299,18 @@ namespace Arifm
             }
 
             if (i <= 0)
-                return L.ToArray();
+            {
+                while (L.Count < 2*r.Length)
+                {
+                    L.Add(0);
+                }
 
+                return L.ToArray();
+            }
             string buf = "";
             int mod = i % 64;
             int m = (i - mod) / 64;
+
             for (int k = 0; k < m; k++)
             {
                 L.Add(0);
@@ -286,6 +321,7 @@ namespace Arifm
                     L[j - 1] = 0;
                 }
             }
+
             if (mod != 0)
             {
                 for (int j = L.Count - 1; j >= 0; j--)
@@ -305,12 +341,13 @@ namespace Arifm
                     L.Add(Convert.ToUInt64(buf.Substring(j, 64), 2));
                 }
                 L.Add(Convert.ToUInt64(buf.Substring(0, mod), 2));
-
-                while (L.Count < r.Length)
-                {
-                    L.Add(0);
-                }
             }
+
+            while (L.Count < 2* r.Length)
+            {
+                L.Add(0);
+            }
+
             return L.ToArray();
         }
         private UInt64[] LongShiftDigitsToHighMul(UInt64[] L, int i)
