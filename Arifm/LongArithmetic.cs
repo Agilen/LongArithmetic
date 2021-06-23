@@ -247,7 +247,7 @@ namespace Arifm
             R = A;
             k = BitLenght(B);
 
-            do
+            while (LongCmp(R, B) == 0 || LongCmp(R, B) == 1) ;
             {
                 t = BitLenght(R);
                 C = LongShiftDigitsToHighDiv(B, t - k);
@@ -256,32 +256,29 @@ namespace Arifm
                     t--;
                     C = LongShiftDigitsToHighDiv(B, t - k);
                 }
-                //R = LongSub(R, C);
+                R = LongSub(R, C);
 
-            } while (LongCmp(R, B) == 0 || LongCmp(R, B) == 1);
+            } 
 
             return (Q, R);
         }
 
         private int LongCmp(List<UInt64> A, List<UInt64> B)
         {
-            int i = A.Count - 1;
-            do
+          
+            for(int i= A.Count - 1; i >= 0; i--)
             {
-                i--;
-                if (i == -1)
-                {
-                    return 0;
-                }
-                else if (A[i] > B[i])
+                if (A[i] > B[i])
                 {
                     return 1;
                 }
-                else
+                else if(A[i] < B[i])
                 {
                     return -1;
                 }
-            } while (A[i] == B[i]);
+            } 
+
+            return 0;
         }
 
         private List<UInt64> LongShiftDigitsToHighMul(List<UInt64> L, int i)
@@ -301,13 +298,12 @@ namespace Arifm
                 }
             }
 
-
-
             return L;
         }
 
         private List<UInt64> LongShiftDigitsToHighDiv(List<UInt64> L, int i)
         {
+            
             if (i <= 0)
                 return L;
 
@@ -380,14 +376,8 @@ namespace Arifm
         {
             string a = "";
             string b = "";
-            string c = "";
-            int lenght = 0;
             a = FillBits(Convert.ToString((long)A, 2));
             b = FillBits(Convert.ToString((long)B, 2));
-            long Ct = (long)(A + B);
-            c = FillBits(Convert.ToString((long)Ct, 2));
-            lenght = a.Length;
-
 
             if (a[0] == '1' && b[0] == '1')
             {
@@ -415,9 +405,7 @@ namespace Arifm
 
             }
 
-
         }
-
 
         private string FillBits(string bits)
         {

@@ -32,36 +32,44 @@ namespace Arifm
             List<string> B = new List<string>();
             List<string> C = new List<string>();
 
-            Read(testAddPath);
-            Console.WriteLine("---Long Add---");
-            for (int i = 0; i < A.Count; i++)
-            {
-                LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "+");
-
-            }
-
-            Read(testSubPath);
-            Console.WriteLine("---Long Sub---");
-            for (int i = 0; i < A.Count; i++)
-            {
-                LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "-");
-            }
-
-
-            Read(testMulPath);
-            Console.WriteLine("---Long Mul---");
-            for (int i = 0; i < A.Count; i++)
-            {
-                LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "*");
-            }
-
-            //Read(testDivPath);
-            //Console.WriteLine("---Long Div---");
-
+            //Read(testAddPath);
+            //Console.WriteLine("---Long Add---");
             //for (int i = 0; i < A.Count; i++)
             //{
-            //    LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "/");
+            //    BigInteger LA = new BigInteger(A[i], B[i], C[i]);
+
             //}
+
+            //Read(testSubPath);
+            //Console.WriteLine("---Long Sub---");
+            //for (int i = 0; i < A.Count; i++)
+            //{
+            //    BigInteger LA = new BigInteger(A[i], B[i], C[i]);
+            //}
+
+            //Read(testMulPath);
+            //Console.WriteLine("---Long Mul---");
+            //for (int i = 0; i < A.Count; i++)
+            //{
+            //    LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i],"*");
+            //}
+
+
+            //Read(testMulPath);
+            //Console.WriteLine("---Long Mul---");
+            //for (int i = 0; i < A.Count; i++)
+            //{
+            //    BigInteger LA = new BigInteger(A[i], B[i], C[i]);
+            //}
+
+
+            Read(testDivPath);
+            Console.WriteLine("---Long Div---");
+
+            for (int i = 0; i < A.Count; i++)
+            {
+                LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i], "/");
+            }
 
 
             void Read(string path)
