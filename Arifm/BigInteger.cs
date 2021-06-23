@@ -24,7 +24,7 @@ namespace Arifm
             }
             Console.WriteLine(Write(C));
             Console.WriteLine(c);
-            Console.ReadLine();
+           
         }
 
         private void FillData(string a,string b)
@@ -210,7 +210,7 @@ namespace Arifm
 
         private UInt64[] LongDivMod(UInt64[] A, UInt64[] B)
         {
-            int k = BitLength(B);
+            int k = BitLengthV2(B);
             int t = 0;
             int nb = 0;
             int iter = 0;
@@ -219,15 +219,18 @@ namespace Arifm
             UInt64[] C = new UInt64[A.Length];
             while (LongCmp(R, B) == 0 || LongCmp(R, B) == 1)
             {
-                t = BitLength(R);
+                t = BitLengthV2(R);
                 C = LongShiftDigitsToHighDiv(B, t - k);
 
-                if (LongCmp(R, C) == -1)
+                while (LongCmp(R, C) == -1)
                 {
-                    t--;
-                    C = LongShiftDigitsToHighDiv(B, t - k);
+                    if (LongCmp(R, C) == -1)
+                    {
+                        t--;
+                        C = LongShiftDigitsToHighDiv(B, t - k);
+                    }
                 }
-               
+                
                 R = LongSub(R, C);
                 //nb = Convert.ToInt32(Math.Floor(Convert.ToDecimal((t - k) / 64)));
                 //Q[nb] += Convert.ToUInt64(2 << (t - k - 1));
@@ -274,6 +277,15 @@ namespace Arifm
             }
 
             return 0;
+        }
+        private int BitLengthV2(UInt64[] Bl)
+        {
+            int k = 0;
+            for(int i = 0; i < Bl.Length; i++)
+            {
+                k += Convert.ToString((long)Bl[i], 2).Length;
+            }
+            return k;
         }
 
         private int BitLength(UInt64[] Bl)

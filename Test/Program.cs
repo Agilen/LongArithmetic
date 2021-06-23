@@ -21,15 +21,37 @@ namespace Test
             B.Add(0x93A59686DF28D90B);
             B.Add(0xD2CE62E81B289C15);
             B.Add(0x3BD8774CB30BEBD5);
-            B.Add(3);
-            B.Add(0);
-            B.Add(0);
+           
             int k = LongCmp(A.ToArray(), B.ToArray());
+
+            Console.WriteLine(BitLengthV2(B.ToArray()));
+            Console.WriteLine(BitLength(B.ToArray()));
           
 
            
         }
 
+        static int BitLengthV2(UInt64[] Bl)
+        {
+            int k = 0;
+            for (int i = 0; i < Bl.Length; i++)
+            {
+                k += Convert.ToString((long)Bl[i], 2).Length;
+            }
+            return k;
+        }
+
+        static int BitLength(UInt64[] Bl)
+        {
+            int k = 0;
+
+            for (int i = 0; i < Bl.Length; i++)
+            {
+                k += Convert.ToInt32(Math.Ceiling(Math.Log2(Bl[i] + 1)));
+            }
+
+            return k;
+        }
         static int LongCmp(UInt64[] A, UInt64[] B)
         {
             int minLength = new int[2] {A.Length,B.Length}.Min();

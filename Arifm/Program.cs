@@ -69,6 +69,7 @@ namespace Arifm
             for (int i = 0; i < A.Count; i++)
             {
                 BigInteger LA = new BigInteger(A[i], B[i], C[i]);
+                
             }
 
 
