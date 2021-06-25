@@ -10,30 +10,19 @@ namespace Arifm
         private UInt64[] A;
         private UInt64[] B;
         private UInt64[] C;
-        public BigInteger(string a,string b,string c)
+        private (UInt64[], UInt64[]) DivRes;
+        public BigInteger(string a, string b, string c)
         {
             FillData(a, b);
-            C = LongDivMod(A, B);
-            if (Write(C) == c)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-            }
-            Console.WriteLine(Write(C));
-            Console.WriteLine(c);
-           
         }
 
-        private void FillData(string a,string b)
+        private void FillData(string a, string b)
         {
             int length;
             a = LeadZero(a, 64);
-            length = a.Length/16;
+            length = a.Length / 16;
             A = new UInt64[length];
-            int k =0;
+            int k = 0;
             for (int i = a.Length - 16; i > -1; i -= 16)
             {
                 A[k] = UInt64.Parse(a.Substring(i, 16), System.Globalization.NumberStyles.HexNumber);
@@ -45,7 +34,7 @@ namespace Arifm
             length = b.Length / 16;
             B = new UInt64[length];
             k = 0;
-            for(int i = b.Length - 16; i > -1; i-=16)
+            for (int i = b.Length - 16; i > -1; i -= 16)
             {
                 B[k] = UInt64.Parse(b.Substring(i, 16), System.Globalization.NumberStyles.HexNumber);
                 k++;
@@ -53,13 +42,13 @@ namespace Arifm
 
         }
 
-        private UInt64[] LongAdd(UInt64[] A,UInt64[] B)
+        private UInt64[] LongAdd(UInt64[] A, UInt64[] B)
         {
             UInt64[] C = new UInt64[A.Length];
             UInt64 temp;
             UInt64 carry = 0;
 
-            for(int i = 0; i < A.Length; i++)
+            for (int i = 0; i < A.Length; i++)
             {
                 temp = A[i] + B[i] + carry;
                 C[i] = temp & 0xffffffffffffffff;
@@ -72,13 +61,13 @@ namespace Arifm
             return C;
         }
 
-        private UInt64[] LongSub(UInt64[] A,UInt64[] B)
+        private UInt64[] LongSub(UInt64[] A, UInt64[] B)
         {
             UInt64[] C = new UInt64[A.Length];
             UInt64 borrow = 0;
             for (int i = 0; i < A.Length; i++)
             {
-                C[i]=A[i] - B[i] - borrow;
+                C[i] = A[i] - B[i] - borrow;
                 if (B[i] != 0 && (B[i] + borrow) == 0)
                 {
                     borrow = 1;
@@ -102,61 +91,61 @@ namespace Arifm
             UInt64 temp;
             UInt64 carry = 0;
             string str = "";
-            UInt32[] c = new UInt32[A.Length+2];
-            UInt32[] c2 = new UInt32[A.Length+2];
-            UInt64[] C = new UInt64[c.Length/2 +1];
-            UInt64[] C2 = new UInt64[c2.Length/2 +1];
+            UInt32[] c = new UInt32[A.Length + 2];
+            UInt32[] c2 = new UInt32[A.Length + 2];
+            UInt64[] C = new UInt64[c.Length / 2 + 1];
+            UInt64[] C2 = new UInt64[c2.Length / 2 + 1];
             UInt64[] buf;
             UInt64[] Res = new UInt64[A.Length];
 
             for (int i = 0; i < A.Length; i++)
             {
                 temp = Convert.ToUInt64(A[i]) * Convert.ToUInt64(B1) + carry;
-                c[i]=(Convert.ToUInt32(temp & 0xffffffff));
+                c[i] = (Convert.ToUInt32(temp & 0xffffffff));
                 carry = temp >> 32;
             }
-            c[c.Length-2]=(Convert.ToUInt32(carry));
+            c[c.Length - 2] = (Convert.ToUInt32(carry));
 
             carry = 0;
             temp = 0;
             for (int i = 0; i < A.Length; i++)
             {
                 temp = Convert.ToUInt64(A[i]) * Convert.ToUInt64(B2) + carry;
-                c2[i+1]=(Convert.ToUInt32(temp & 0xffffffff));
+                c2[i + 1] = (Convert.ToUInt32(temp & 0xffffffff));
                 carry = temp >> 32;
             }
-            c2[c2.Length-1]=(Convert.ToUInt32(carry));
+            c2[c2.Length - 1] = (Convert.ToUInt32(carry));
 
-           
 
-            for (int i = c.Length-1; i >=0; i--)
+
+            for (int i = c.Length - 1; i >= 0; i--)
             {
-                str += LeadZero(Convert.ToString(c[i], 16),8);
+                str += LeadZero(Convert.ToString(c[i], 16), 8);
             }
-            
+
             for (int i = str.Length - 16; i > -1; i -= 16)
             {
                 C[C.Length - (i / 16) - 2] = (UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
             }
-            
-            str = "";
-            for (int i = c2.Length-1; i >=0; i--)
-            {
-                str += LeadZero(Convert.ToString(c2[i], 16),8);
-            }
-            for (int i = str.Length-16; i > -1; i -= 16)
-            {
-                C2[C2.Length-(i/16)-2]=(UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
-            }
-           
-            buf = LongAdd(C, C2);
-           
 
-            for(int i = 0; i < buf.Length; i++)
+            str = "";
+            for (int i = c2.Length - 1; i >= 0; i--)
+            {
+                str += LeadZero(Convert.ToString(c2[i], 16), 8);
+            }
+            for (int i = str.Length - 16; i > -1; i -= 16)
+            {
+                C2[C2.Length - (i / 16) - 2] = (UInt64.Parse(str.Substring(i, 16), System.Globalization.NumberStyles.HexNumber));
+            }
+
+            buf = LongAdd(C, C2);
+
+
+            for (int i = 0; i < buf.Length; i++)
             {
                 Res[i] = buf[i];
             }
-            
+
             return Res;
 
         }
@@ -169,7 +158,7 @@ namespace Arifm
             UInt64[] temp = new UInt64[lenght];
             UInt64[] C = new UInt64[lenght];
             UInt32[] A32 = new UInt32[lenght];
-            UInt32[] B32 = new UInt32[lenght] ;
+            UInt32[] B32 = new UInt32[lenght];
 
             for (int i = A.Length - 1; i >= 0; i--)
             {
@@ -183,15 +172,15 @@ namespace Arifm
 
             for (int i = 0; i < a.Length; i += 8)
             {
-                A32[A32.Length-(i/8)-1]=(UInt32.Parse(a.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
+                A32[A32.Length - (i / 8) - 1] = (UInt32.Parse(a.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
 
             for (int i = 0; i < b.Length; i += 8)
             {
-                B32[B32.Length - (i / 8)-1] =(UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
+                B32[B32.Length - (i / 8) - 1] = (UInt32.Parse(b.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
-            
-           
+
+
 
             for (int i = 0; i < lenght; i += 2)
             {
@@ -199,7 +188,7 @@ namespace Arifm
 
                 temp = LongShiftDigitsToHighMul(temp, i / 2);
 
-                
+
                 C = LongAdd(C, temp);
 
             }
@@ -208,14 +197,16 @@ namespace Arifm
 
         }
 
-        private UInt64[] LongDivMod(UInt64[] A, UInt64[] B)
+        private (UInt64[],UInt64[]) LongDivMod(UInt64[] A, UInt64[] B)
         {
             int k = BitLengthV2(B);
             int t = 0;
             int nb = 0;
             int iter = 0;
+            string Qq = " ";
+            Qq = LeadZero(Qq, 4 * 64);
             UInt64[] R = A;
-            UInt64[] Q = new UInt64[A.Length - B.Length];
+            UInt64[] Q = new UInt64[5];
             UInt64[] C = new UInt64[A.Length];
             while (LongCmp(R, B) == 0 || LongCmp(R, B) == 1)
             {
@@ -232,13 +223,14 @@ namespace Arifm
                 }
                 
                 R = LongSub(R, C);
-                //nb = Convert.ToInt32(Math.Floor(Convert.ToDecimal((t - k) / 64)));
-                //Q[nb] += Convert.ToUInt64(2 << (t - k - 1));
+                Q = LongAdd(Q, LongShiftDigitToHigh(2, t - k - 1));
+                
             }
-            return R;
+            
+            return (Q,R);
         }
 
-        static int LongCmp(UInt64[] A, UInt64[] B)
+        private int LongCmp(UInt64[] A, UInt64[] B)
         {
             int minLength = new int[2] { A.Length, B.Length }.Min();
 
@@ -281,7 +273,7 @@ namespace Arifm
         private int BitLengthV2(UInt64[] Bl)
         {
             int k = 0;
-            for(int i = 0; i < Bl.Length; i++)
+            for (int i = 0; i < Bl.Length; i++)
             {
                 k += Convert.ToString((long)Bl[i], 2).Length;
             }
@@ -292,7 +284,7 @@ namespace Arifm
         {
             int k = 0;
 
-            for(int i = 0; i < Bl.Length; i++)
+            for (int i = 0; i < Bl.Length; i++)
             {
                 k += Convert.ToInt32(Math.Ceiling(Math.Log2(Bl[i] + 1)));
             }
@@ -312,7 +304,7 @@ namespace Arifm
 
             if (i <= 0)
             {
-                while (L.Count < 2*r.Length)
+                while (L.Count < 2 * r.Length)
                 {
                     L.Add(0);
                 }
@@ -355,7 +347,7 @@ namespace Arifm
                 L.Add(Convert.ToUInt64(buf.Substring(0, mod), 2));
             }
 
-            while (L.Count < 2* r.Length)
+            while (L.Count < 2 * r.Length)
             {
                 L.Add(0);
             }
@@ -364,7 +356,7 @@ namespace Arifm
         }
         private UInt64[] LongShiftDigitsToHighMul(UInt64[] L, int i)
         {
-            
+
             if (i == 0)
                 return L;
             for (int k = 0; k < i; k++)
@@ -378,6 +370,35 @@ namespace Arifm
 
             return L;
         }
+
+        private UInt64[] LongShiftDigitToHigh(int n, int k)
+        {
+            if (k==-1)
+            {
+                return new UInt64[5] { 1, 0, 0, 0, 0};
+            }
+            string number = "";
+            number += Convert.ToString(n, 2);
+            for (int i = 0; i < k; i++)
+            {
+                number = number.Insert(number.Length, "0");
+            }
+            number = LeadZero(number, 320);
+
+            UInt64[] Digit = new UInt64[5];
+            
+            int l = Digit.Length - 1;
+            for (int i = 0; i <= number.Length - 64; i += 64)
+            {
+
+                Digit[l] = Convert.ToUInt64(number.Substring(i, 64), 2);
+                l--;
+            }
+
+            return Digit;
+
+        }
+
 
         private bool IsCarryExist(UInt64 A, UInt64 B, UInt64 carry)
         {
@@ -432,13 +453,71 @@ namespace Arifm
             string output = "";
             for (int i = W.Length - 1; i >= 0; i--)
             {
-                if (i != W.Length-1)
+             
                     output += LeadZero(W[i].ToString("X"), 16);
-                else
-                    output += W[i].ToString("X");
+                
             }
 
-            return output;
+            return DelLeadZero(output);
+        }
+
+        private string DelLeadZero(string str)
+        {
+            while (str[0]=='0')
+            {
+                str = str.Substring(1);
+            }
+            return str;
+        }
+
+        
+        private bool IsBinary(char ch)
+        {
+            if (ch == '1' || ch == '0')
+                return true;
+            else
+            {
+                return false;
+            }
+
+        }
+        public UInt64[] ReadNumber(string n)
+        {
+            n = n.Trim().ToLowerInvariant();
+
+            int sys = 0;
+            int m = 0;
+            int lenght;
+            long res;
+            if (n.Length > 2)
+            {
+                if (n.Substring(0, 2) == "0x" && n.Substring(2).All(ch => Uri.IsHexDigit(ch)))
+                {
+                    sys = 16;
+                    m = 16;
+                }
+                else if (n.Substring(0, 2) == "0b" && n.Substring(2).All(ch => IsBinary(ch)))
+                {
+                    sys = 64;
+                    m = 2;
+                }
+                else
+                {
+                    Console.WriteLine("Not bin or hex");
+                }
+            }
+            n = n.Substring(2);
+            n = LeadZero(n, sys);
+            lenght = n.Length / sys;
+            UInt64[] Digit = new UInt64[lenght];
+            int k = Digit.Length - 1;
+            for (int i = 0; i <= n.Length - sys; i += sys)
+            {
+                Digit[k] = Convert.ToUInt64(n.Substring(i, sys), m);
+            }
+
+
+            return Digit;
         }
 
     }

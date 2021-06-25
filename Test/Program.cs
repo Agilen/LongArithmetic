@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace Test
 {
@@ -10,87 +11,95 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            List<UInt64> A = new List<UInt64>();
-            A.Add(0x65A80EEF243FEC47);
-            A.Add(0x93A59686DF28D90B);
-            A.Add(0xD2CE62E81B289C15);
-            A.Add(0x3BD8774CB30BEBD5);
-          
-            List<UInt64> B = new List<UInt64>();
-            B.Add(0x65A80EEF243FEC47);
-            B.Add(0x93A59686DF28D90B);
-            B.Add(0xD2CE62E81B289C15);
-            B.Add(0x3BD8774CB30BEBD5);
-           
-            int k = LongCmp(A.ToArray(), B.ToArray());
-
-            Console.WriteLine(BitLengthV2(B.ToArray()));
-            Console.WriteLine(BitLength(B.ToArray()));
-          
-
-           
-        }
-
-        static int BitLengthV2(UInt64[] Bl)
-        {
-            int k = 0;
-            for (int i = 0; i < Bl.Length; i++)
+            string bin = "0b1101010110011110101000011000011011000111010100000011000000000000000";//64
+            string dec = "123143345413124360000";//22
+            string hex = "0x4735D165054F53497233FBFB653EDCACA2AE5E5BC91AF12DA1FECA373573EE70";//16
+            UInt64[] D;
+            Console.WriteLine("18446744073709551615".Length);
+                                                     
+            D = ReadNumber(bin);
+            for(int i = D.Length - 1; i >= 0; i--)
             {
-                k += Convert.ToString((long)Bl[i], 2).Length;
+                Console.Write(D[i]);
             }
-            return k;
-        }
-
-        static int BitLength(UInt64[] Bl)
-        {
-            int k = 0;
-
-            for (int i = 0; i < Bl.Length; i++)
+            Console.WriteLine();
+            D = ReadNumber(dec);
+            for (int i = D.Length - 1; i >= 0; i--)
             {
-                k += Convert.ToInt32(Math.Ceiling(Math.Log2(Bl[i] + 1)));
+                Console.Write(D[i]);
+            }
+            Console.WriteLine();
+            D = ReadNumber(hex);
+            for (int i = D.Length - 1; i >= 0; i--)
+            {
+                Console.Write(D[i]);
             }
 
-            return k;
+
         }
-        static int LongCmp(UInt64[] A, UInt64[] B)
+        
+       
+        static bool IsBinary(char ch)
         {
-            int minLength = new int[2] {A.Length,B.Length}.Min();
+            if (ch == '1' || ch == '0')
+                return true;
+            else
+            {
+                return false;
+            }
+                        
+        }
+        static UInt64[] ReadNumber(string n)
+        {
+            n = n.Trim().ToLowerInvariant();
             
-            if (A.Length != B.Length)
+            int sys = 0;
+            int m = 0;
+            int lenght;
+            long res;
+            if (n.Length > 2)
             {
-                if (A.Length > B.Length)
+                if(n.Substring(0,2) == "0x" && n.Substring(2).All(ch => Uri.IsHexDigit(ch)))
                 {
-                    minLength = B.Length;
-                    for (int i = A.Length - 1; i > minLength-1; i--)
-                    {
-                        if (A[i] != 0)
-                            return 1;
-                    }
+                    sys = 16;
+                    m = 16;
+                }
+                else if(n.Substring(0, 2) == "0b" && n.Substring(2).All(ch => IsBinary(ch)))
+                {
+                    sys = 64;
+                    m = 2;
                 }
                 else
                 {
-                    minLength = A.Length;
-                    for (int i = B.Length - 1; i > minLength-1; i--)
-                    {
-                        if (B[i] != 0)
-                            return -1;
-                    }
+                    Console.WriteLine("Not bin or hex");
                 }
             }
-
-            for (int i = minLength - 1; i >= 0; i--)
+            n=n.Substring(2);
+            n = LeadZero(n, sys);
+            lenght = n.Length / sys;
+            UInt64[] Digit = new UInt64[lenght];
+            int k = Digit.Length - 1;
+            for(int i = 0; i <= n.Length - sys; i += sys)
             {
-                if (A[i] > B[i])
+                Digit[k] = Convert.ToUInt64(n.Substring(i, sys),m);
+            }
+
+
+            return Digit;
+        }
+
+        static string LeadZero(string bit, int nBit)
+        {
+            if (bit.Length % nBit != 0)
+            {
+                while (bit.Length % nBit != 0)
                 {
-                    return 1;
-                }
-                else if (A[i] < B[i])
-                {
-                    return -1;
+                    bit = bit.Insert(0, "0");
                 }
             }
 
-            return 0;
+            return bit;
         }
+
     }
 }
