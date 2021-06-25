@@ -9,91 +9,13 @@ namespace Arifm
 {
     class Program
     {
-
-        public class Test
-        {
-            //[Index(0)]
-            public string A { get; set; }
-            //[Index(1)]
-            public string B { get; set; }
-
-            public string C { get; set; }
-
-        }
-
-
         static void Main(string[] args)
         {
-            string testAddPath = "Data/test_add.arith";
-            string testSubPath = "Data/test_sub.arith";
-            string testMulPath = "Data/test_mul.arith";
-            string testDivPath = "Data/test_div.arith";
-            List<string> A = new List<string>();
-            List<string> B = new List<string>();
-            List<string> C = new List<string>();
-
-            //Read(testAddPath);
-            //Console.WriteLine("---Long Add---");
-            //for (int i = 0; i < A.Count; i++)
-            //{
-            //    BigInteger LA = new BigInteger(A[i], B[i], C[i]);
-
-            //}
-
-            //Read(testSubPath);
-            //Console.WriteLine("---Long Sub---");
-            //for (int i = 0; i < A.Count; i++)
-            //{
-            //    BigInteger LA = new BigInteger(A[i], B[i], C[i]);
-            //}
-
-            //Read(testMulPath);
-            //Console.WriteLine("---Long Mul---");
-            //for (int i = 0; i < A.Count; i++)
-            //{
-            //    LongArithmetic LA = new LongArithmetic(A[i], B[i], C[i],"*");
-            //}
-
-
-            //Read(testMulPath);
-            //Console.WriteLine("---Long Mul---");
-            //for (int i = 0; i < A.Count; i++)
-            //{
-            //    BigInteger LA = new BigInteger(A[i], B[i], C[i]);
-            //}
-
-
-            Read(testDivPath);
-            Console.WriteLine("---Long Div---");
-
-            for (int i = 0; i < A.Count; i++)
-            {
-                BigInteger LA = new BigInteger(A[i], B[i], C[i]);
-                
-            }
-
-
-            void Read(string path)
-            {
-                A.Clear();
-                B.Clear();
-                C.Clear();
-                
-
-                var lines = File.ReadAllLines(path);
-               
-
-                for(int i = 0; i < lines.Length; i+=4)
-                {
-                    A.Add(lines[i]);
-                    B.Add(lines[i + 1]);
-                    C.Add(lines[i + 2]);
-                }
-
-            }
-
+            BigIntegersV2 a = new BigIntegersV2("0x50CF6A20998EEA455FCA21F671EC7A88A90FB5FBDC31007E4D9A8E6DBB3E69C1");
+            BigIntegersV2 b = new BigIntegersV2("0x3D9FD9AA1AA22EB3CB02C7EDD3CDDF23C240C322CD758FB3BBCBE76E17E9DB8B");
+            BigIntegersV2 Add = a + b;
+            BigIntegersV2 Sub = a - b;
+            Console.WriteLine(a.Write(a));
         }
-        
-
     }
 }

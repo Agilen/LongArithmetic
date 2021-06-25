@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
+            
             string bin = "0b1101010110011110101000011000011011000111010100000011000000000000000";//64
             string dec = "123143345413124360000";//22
             string hex = "0x4735D165054F53497233FBFB653EDCACA2AE5E5BC91AF12DA1FECA373573EE70";//16
