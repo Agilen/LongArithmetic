@@ -26,7 +26,14 @@ namespace Arifm
         public static BigIntegersV2 operator *(BigIntegersV2 a, BigIntegersV2 b) => LongMul(a, b);
         public static BigIntegersV2 operator /(BigIntegersV2 a, BigIntegersV2 b) => LongDiv(a, b);
         public static BigIntegersV2 operator %(BigIntegersV2 a, BigIntegersV2 b) => LongDivMod(a, b);
-        
+        public static bool operator <(BigIntegersV2 a, BigIntegersV2 b) => LongCmp(a, b) < 0;
+        public static bool operator >(BigIntegersV2 a, BigIntegersV2 b) => LongCmp(a, b) > 0;
+        public static bool operator <=(BigIntegersV2 a, BigIntegersV2 b) => LongCmp(a, b) <= 0;
+        public static bool operator >=(BigIntegersV2 a, BigIntegersV2 b) => LongCmp(a, b) >= 0;
+        public static bool operator ==(BigIntegersV2 a, BigIntegersV2 b) => LongCmp(a, b) == 0;
+        public static bool operator !=(BigIntegersV2 a, BigIntegersV2 b) => LongCmp(a, b) != 0;
+        public override bool Equals(object obj) => !(obj is BigIntegersV2) ? false : this == (BigIntegersV2)obj;
+
         private static BigIntegersV2 LongSub(BigIntegersV2 a,BigIntegersV2 b)
         {
             int maxLength = Math.Max(a.Size, b.Size);
@@ -141,78 +148,57 @@ namespace Arifm
         private static BigIntegersV2 LongDivMod(BigIntegersV2 a, BigIntegersV2 b)
         {
             int maxLength = Math.Max(a.Size, b.Size);
-            UInt64[] A = new UInt64[maxLength];
-            UInt64[] B = new UInt64[maxLength];
-            for(int i = 0; i < maxLength; i++)
-            {
-                A[i] = a.GetValue(i);
-                B[i] = b.GetValue(i);
-            }
-            int k = BitLengthV2(B);
+            int k = BitLengthV2(b);
             int t = 0;
-            string Qq = " ";
-            Qq = LeadZero(Qq, 4 * 64);
-            UInt64[] R = A;
-            UInt64[] Q = new UInt64[5];
-            UInt64[] C = new UInt64[A.Length];
-            while (LongCmp(new BigIntegersV2(R), new BigIntegersV2(B)) == 0 || LongCmp(new BigIntegersV2(R), new BigIntegersV2(B)) == 1)
+            BigIntegersV2 R = a;
+            BigIntegersV2 C ;
+            while (R>=b)
             {
                 t = BitLengthV2(R);
-                C = LongShiftDigitsToHighDiv(B, t - k);
-
-                while (LongCmp(new BigIntegersV2(R), new BigIntegersV2(C)) == -1)
+                C = LongShiftDigitsToHighDiv(b, t - k);
+                while (R < C)
                 {
-                    if (LongCmp(new BigIntegersV2(R), new BigIntegersV2(C)) == -1)
+                    if (R < C)
                     {
                         t--;
-                        C = LongShiftDigitsToHighDiv(B, t - k);
+                        C = LongShiftDigitsToHighDiv(b, t - k);
                     }
                 }
-
-                R = LongSub(R,C);
-                Q = LongAdd(Q, LongShiftDigitToHigh(2, t - k - 1));
-
+                R = R - C;
             }
 
-            return new BigIntegersV2(R);
+            return R;
         }
         private static BigIntegersV2 LongDiv(BigIntegersV2 a, BigIntegersV2 b)
         {
+            
             int maxLength = Math.Max(a.Size, b.Size);
-            UInt64[] A = new UInt64[maxLength];
-            UInt64[] B = new UInt64[maxLength];
-            for (int i = 0; i < maxLength; i++)
-            {
-                A[i] = a.GetValue(i);
-                B[i] = b.GetValue(i);
-            }
-            int k = BitLengthV2(B);
+            int k = BitLengthV2(b);
             int t = 0;
-            string Qq = " ";
-            Qq = LeadZero(Qq, 4 * 64);
-            UInt64[] R = A;
-            UInt64[] Q = new UInt64[5];
-            UInt64[] C = new UInt64[A.Length];
-            while (LongCmp(new BigIntegersV2(R), new BigIntegersV2(B)) == 0 || LongCmp(new BigIntegersV2(R), new BigIntegersV2(B)) == 1)
+            BigIntegersV2 R = a;
+            BigIntegersV2 Q = new BigIntegersV2(new UInt64[b.Size+1]);
+            BigIntegersV2 C ;
+            while (R >= b)
             {
                 t = BitLengthV2(R);
-                C = LongShiftDigitsToHighDiv(B, t - k);
+                C = LongShiftDigitsToHighDiv(b, t - k);
 
-                while (LongCmp(new BigIntegersV2(R), new BigIntegersV2(C)) == -1)
+                while (R < C)
                 {
-                    if (LongCmp(new BigIntegersV2(R), new BigIntegersV2(C)) == -1)
+                    if (R < C)
                     {
                         t--;
-                        C = LongShiftDigitsToHighDiv(B, t - k);
+                        C = LongShiftDigitsToHighDiv(b, t - k);
                     }
                 }
 
-                R = LongSub(R, C);
-                Q = LongAdd(Q, LongShiftDigitToHigh(2, t - k - 1));
+                R = R - C;
+                Q = Q + LongShiftDigitToHigh(2, t - k - 1);
+            
 
             }
-
-            return new BigIntegersV2(Q);
+           
+            return Q;
         }
         private static UInt64[] LongMulOneDigit(UInt32[] A, UInt32 B1, UInt32 B2)
         {
@@ -296,29 +282,6 @@ namespace Arifm
 
             return C;
         }
-        private static UInt64[] LongSub(UInt64[] A, UInt64[] B)
-        {
-            UInt64[] C = new UInt64[A.Length];
-            UInt64 borrow = 0;
-            for (int i = 0; i < A.Length; i++)
-            {
-                C[i] = A[i] - B[i] - borrow;
-                if (B[i] != 0 && (B[i] + borrow) == 0)
-                {
-                    borrow = 1;
-                }
-                else if (A[i] >= (B[i] + borrow))
-                {
-                    borrow = 0;
-                }
-                else
-                {
-                    borrow = 1;
-                }
-
-            }
-            return C;
-        }
         private static UInt64[] LongShiftDigitsToHighMul(UInt64[] L, int i)
         {
 
@@ -335,24 +298,19 @@ namespace Arifm
 
             return L;
         }
-        private static UInt64[] LongShiftDigitsToHighDiv(UInt64[] r, int i)
+        private static BigIntegersV2 LongShiftDigitsToHighDiv(BigIntegersV2 r, int i)
         {
             List<UInt64> L = new List<UInt64>();
 
-            for (int j = 0; j < r.Length; j++)
+            for (int j = 0; j < r.Size; j++)
             {
                 L.Add(0);
-                L[j] = r[j];
+                L[j] = r.GetValue(j);
             }
 
             if (i <= 0)
             {
-                while (L.Count < 2 * r.Length)
-                {
-                    L.Add(0);
-                }
-
-                return L.ToArray();
+                return new BigIntegersV2(L.ToArray());
             }
             string buf = "";
             int mod = i % 64;
@@ -390,18 +348,22 @@ namespace Arifm
                 L.Add(Convert.ToUInt64(buf.Substring(0, mod), 2));
             }
 
-            while (L.Count < 2 * r.Length)
-            {
-                L.Add(0);
-            }
+            //while (L.Count < 2 * r.Size)
+            //{
+            //    L.Add(0);
+            //}
 
-            return L.ToArray();
+            return new BigIntegersV2(L.ToArray());
         }
-        private static UInt64[] LongShiftDigitToHigh(int n, int k)
+        private static BigIntegersV2 LongShiftDigitToHigh(int n, int k)
         {
-            if (k == -1)
+            if (k <= -1)
             {
-                return new UInt64[5] { 1, 0, 0, 0, 0 };
+                return new BigIntegersV2(new UInt64[1] { 1 });
+            }
+            if (k == 0)
+            {
+                return new BigIntegersV2(new UInt64[1] { Convert.ToUInt64(n) });
             }
             string number = "";
             number += Convert.ToString(n, 2);
@@ -409,27 +371,27 @@ namespace Arifm
             {
                 number = number.Insert(number.Length, "0");
             }
-            number = LeadZero(number, 320);
+            number = LeadZero(number, 64);
 
-            UInt64[] Digit = new UInt64[5];
+            UInt64[] D = new UInt64[number.Length/64];
 
-            int l = Digit.Length - 1;
+            int l = D.Length - 1;
             for (int i = 0; i <= number.Length - 64; i += 64)
             {
 
-                Digit[l] = Convert.ToUInt64(number.Substring(i, 64), 2);
+                D[l] = Convert.ToUInt64(number.Substring(i, 64), 2);
                 l--;
             }
 
-            return Digit;
+            return new BigIntegersV2(D);
 
         }
-        private static int BitLengthV2(UInt64[] Bl)
+        private static int BitLengthV2(BigIntegersV2 Bl)
         {
             int k = 0;
-            for (int i = 0; i < Bl.Length; i++)
+            for (int i = 0; i < Bl.Size; i++)
             {
-                k += Convert.ToString((long)Bl[i], 2).Length;
+                k += Convert.ToString((long)Bl.GetValue(i), 2).Length;
             }
             return k;
         }
@@ -525,7 +487,18 @@ namespace Arifm
 
             return bit;
         }
+        public static string Writ(BigIntegersV2 W)
+        {
+            string output = "";
+            for (int i = W.Size - 1; i >= 0; i--)
+            {
 
+                output += LeadZero(W.GetValue(i).ToString("X"), 16);
+
+            }
+
+            return DelLeadZer(output);
+        }
         public string Write(BigIntegersV2 W)
         {
             string output = "";
@@ -538,7 +511,14 @@ namespace Arifm
 
             return DelLeadZero(output);
         }
-
+        private static string DelLeadZer(string str)
+        {
+            while (str[0] == '0')
+            {
+                str = str.Substring(1);
+            }
+            return str;
+        }
         private string DelLeadZero(string str)
         {
             while (str[0] == '0')
