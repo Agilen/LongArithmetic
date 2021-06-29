@@ -487,37 +487,31 @@ namespace Arifm
 
             return bit;
         }
-        public static string Writ(BigIntegersV2 W)
+        public string Write(string n)
         {
             string output = "";
-            for (int i = W.Size - 1; i >= 0; i--)
+            if (n.Trim() == "16")
             {
+                for (int i = Digit.Length - 1; i >= 0; i--)
+                {
 
-                output += LeadZero(W.GetValue(i).ToString("X"), 16);
+                    output += LeadZero(Digit[i].ToString("X"), 16);
 
+                }
+                
             }
 
-            return DelLeadZer(output);
-        }
-        public string Write(BigIntegersV2 W)
-        {
-            string output = "";
-            for (int i = W.Size - 1; i >= 0; i--)
+            if (n.Trim() == "2")
             {
+                for (int i = Digit.Length - 1; i >= 0; i--)
+                {
 
-                output += LeadZero(W.GetValue(i).ToString("X"), 16);
+                    output += LeadZero(Convert.ToString((long)Digit[i],2),64);
 
+                }
             }
 
             return DelLeadZero(output);
-        }
-        private static string DelLeadZer(string str)
-        {
-            while (str[0] == '0')
-            {
-                str = str.Substring(1);
-            }
-            return str;
         }
         private string DelLeadZero(string str)
         {

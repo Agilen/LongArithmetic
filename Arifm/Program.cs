@@ -8,9 +8,7 @@ using System.Numerics;
 namespace Arifm
 {
     class Program
-    {//0xc9348909e6bd67f3842ca675f7cb23a3e06a5847ecd470ee8138bcbda144a8647e799e095521f772d4e418608c526b22c14c40f459568b0a616b0d0f6e3f31ec
-     //0xC9348909E6BD67F3842CA675F7CB23A3E06A5847ECD470EE8138BCBDA144A863B329802B0CA21EE3AD98EB52CE00B90B1BAF7B24230552DFE9BA1E7608275A42
-
+    {
         static void Main(string[] args)
         {
 
@@ -25,12 +23,12 @@ namespace Arifm
 
             Console.WriteLine("---Long Add Test---");
             ReadData(DataAdd);
-            for(int i = 0; i < C.Count; i++)
+            for (int i = 0; i < C.Count; i++)
             {
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a + b;
-                Console.WriteLine(c.Write(c));
+                Console.WriteLine(c.Write("16"));
                 Console.WriteLine(C[i]);
             }
 
@@ -41,7 +39,7 @@ namespace Arifm
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a - b;
-                Console.WriteLine(c.Write(c));
+                Console.WriteLine(c.Write("16"));
                 Console.WriteLine(C[i]);
             }
 
@@ -52,7 +50,7 @@ namespace Arifm
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a * b;
-                Console.WriteLine(c.Write(c));
+                Console.WriteLine(c.Write("16"));
                 Console.WriteLine(C[i]);
             }
 
@@ -64,10 +62,10 @@ namespace Arifm
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a / b;
                 BigIntegersV2 cMod = a % b;
-                Console.WriteLine(c.Write(c) + " " + cMod.Write(cMod));
+                Console.WriteLine(c.Write("16") + " " + cMod.Write("16"));
                 Console.WriteLine(C[i]);
             }
-         
+
 
 
             void ReadData(string Data)
@@ -87,7 +85,7 @@ namespace Arifm
             }
         }
 
-      
+
 
 
     }
