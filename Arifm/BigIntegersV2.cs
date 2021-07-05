@@ -9,9 +9,22 @@ namespace Arifm
     {
         private UInt64[] Digit;
 
+        public BigIntegersV2(int n)
+        {
+            Digit = new UInt64[1] { Convert.ToUInt64(n) };
+        }
+        public BigIntegersV2(UInt64 n)
+        {
+            Digit = new UInt64[1] { n };
+        }
+        public BigIntegersV2()
+        {
+            Digit = new UInt64[1] { 0 };
+        }
         public BigIntegersV2(UInt64[] digit)
         {
             Digit = digit;
+   
         }
         
         public BigIntegersV2(string digit)
@@ -88,7 +101,7 @@ namespace Arifm
             UInt64[] temp = new UInt64[lenght];
             UInt64[] C = new UInt64[lenght];
             UInt32[] A32 = new UInt32[lenght];
-            UInt32[] B32 = new UInt32[lenght];
+            UInt32[] B32 = new UInt32[b.Size*2];
 
             for (int i = a.Size - 1; i >= 0; i--)
             {
@@ -112,12 +125,11 @@ namespace Arifm
 
 
 
-            for (int i = 0; i < lenght; i += 2)
+            for (int i = 0; i < B32.Length; i += 2)
             {
                 temp = LongMulOneDigit(A32, B32[i], B32[i + 1]);
 
                 temp = LongShiftDigitsToHighMul(temp, i / 2);
-
 
                 C = LongAdd(C, temp);
 
@@ -254,7 +266,9 @@ namespace Arifm
             }
 
             buf = LongAdd(C, C2);
+          
 
+            
 
             for (int i = 0; i < buf.Length; i++)
             {
@@ -263,6 +277,66 @@ namespace Arifm
 
             return Res;
 
+        }
+        public BigIntegersV2 Pow(int n,int m)
+        {
+            BigIntegersV2 a = new BigIntegersV2(n);
+            BigIntegersV2 res = new BigIntegersV2(new UInt64[2] {Convert.ToUInt64(n),0 });
+            for(int i = 0; i < m-1; i++)
+            {
+                res = res * a;
+                res = DelNull(res);
+
+            }
+
+            return res;
+        }
+
+        private UInt64[] ReadDec(string n)
+        {
+            n = n.Trim();
+            UInt64[] numbers = new UInt64[n.Length];
+            for(int i = 0; i < n.Length; i++)
+            {
+                numbers[n.Length - 1 - i] = UInt64.Parse(n.Substring(i, 1));
+            }
+            BigIntegersV2 res=new BigIntegersV2();
+            for(int i = 0; i < numbers.Length; i++)
+            {
+                res = res + Pow(10, i) * new BigIntegersV2(numbers[i]);
+            }
+            res = DelNull(res);
+            numbers = new UInt64[res.Size];
+            for(int i = 0; i < res.Size; i++)
+            {
+                numbers[i] = res.GetValue(i);
+            }
+            return numbers;
+        }
+
+        private BigIntegersV2 DelNull(BigIntegersV2 a)
+        {
+            int count = a.Size;
+            if (a.Size != 0)
+            {
+                for (int i = a.Size- 1; i >= 0; i--)
+                {
+                    if (a.GetValue(i) == 0)
+                        count--;
+                    else
+                        break;
+
+                }
+                count++;
+
+                UInt64[] d = new UInt64[count];
+                for (int i = 0; i < d.Length; i++)
+                {
+                    d[i] = a.GetValue(i);
+                }
+                return new BigIntegersV2(d);
+            }
+            return a;
         }
         private static UInt64[] LongAdd(UInt64[] A, UInt64[] B)
         {
@@ -279,7 +353,7 @@ namespace Arifm
                 else
                     carry = 0;
             }
-
+            
             return C;
         }
         private static UInt64[] LongShiftDigitsToHighMul(UInt64[] L, int i)
@@ -448,9 +522,9 @@ namespace Arifm
                     sys = 64;
                     m = 2;
                 }
-                else
+                else if (n.All(ch => IsDec(ch)))
                 {
-                    Console.WriteLine("Not bin or hex");
+                    return ReadDec(n);
                 }
             }
             n = LeadZero(n.Substring(2), sys);
@@ -465,6 +539,15 @@ namespace Arifm
 
             return Digit;
         }
+      
+        private bool IsDec(char ch)
+        {
+            if (ch == '0' || ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5' || ch == '6' || ch == '7' || ch == '8' || ch == '9')
+                return true;
+            else
+                return false;
+        }
+       
         private bool IsBinary(char ch)
         {
             if (ch == '1' || ch == '0')
@@ -486,6 +569,20 @@ namespace Arifm
             }
 
             return bit;
+        }
+        private string DecOutput()
+        {
+            BigIntegersV2 LeftPart=new BigIntegersV2(Digit);
+            BigIntegersV2 Mod;
+            string Output = "";
+            while (LeftPart > new BigIntegersV2(10))
+            {
+                Mod = LeftPart % new BigIntegersV2(10);
+                Output = Output.Insert(0, Convert.ToString(Mod.GetValue(0)));
+                LeftPart = LeftPart / new BigIntegersV2(10);
+            }
+            Output= Output.Insert(0, Convert.ToString(LeftPart.GetValue(0)));
+            return Output;
         }
         public string Write(string n)
         {
@@ -510,7 +607,10 @@ namespace Arifm
 
                 }
             }
-
+            if (n.Trim() == "10")
+            {
+                output = DecOutput();
+            }
             return DelLeadZero(output);
         }
         private string DelLeadZero(string str)

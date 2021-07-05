@@ -11,7 +11,6 @@ namespace Arifm
     {
         static void Main(string[] args)
         {
-
             List<string> A = new List<string>();
             List<string> B = new List<string>();
             List<string> C = new List<string>();
