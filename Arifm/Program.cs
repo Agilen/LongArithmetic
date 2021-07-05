@@ -28,8 +28,13 @@ namespace Arifm
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a + b;
-                Console.WriteLine(c.Write("16"));
-                Console.WriteLine(C[i]);
+                BigIntegersV2 TestC = new BigIntegersV2($"0x{C[i]}");
+                if (TestC == c)
+                    Console.WriteLine(true);
+                else
+                {
+                    Console.WriteLine(false);
+                }
             }
 
             Console.WriteLine("---Long Sub Test---");
@@ -39,8 +44,13 @@ namespace Arifm
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a - b;
-                Console.WriteLine(c.Write("16"));
-                Console.WriteLine(C[i]);
+                BigIntegersV2 TestC = new BigIntegersV2($"0x{C[i]}");
+                if (TestC == c)
+                    Console.WriteLine(true);
+                else
+                {
+                    Console.WriteLine(false);
+                }
             }
 
             Console.WriteLine("---Long Mul Test---");
@@ -50,20 +60,38 @@ namespace Arifm
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a * b;
-                Console.WriteLine(c.Write("16"));
-                Console.WriteLine(C[i]);
+                BigIntegersV2 TestC = new BigIntegersV2($"0x{C[i]}");
+                if (TestC == c)
+                    Console.WriteLine(true);
+                else
+                {
+                    Console.WriteLine(false);
+                }
             }
 
             Console.WriteLine("---Long Div Test---");
             ReadData(DataDiv);
+            string Ct;
+            string CtMod;
             for (int i = 0; i < C.Count; i++)
             {
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
                 BigIntegersV2 c = a / b;
                 BigIntegersV2 cMod = a % b;
-                Console.WriteLine(c.Write("16") + " " + cMod.Write("16"));
-                Console.WriteLine(C[i]);
+                Ct = C[i].Substring(0,C[i].IndexOf(' '));
+                CtMod = C[i].Substring(C[i].IndexOf(' ')+1);
+                BigIntegersV2 CT = new BigIntegersV2($"0x{Ct}");
+                BigIntegersV2 CTM = new BigIntegersV2($"0x{CtMod}");
+                if (c == CT)
+                    Console.WriteLine(true);
+                else
+                    Console.WriteLine(false);
+
+                if (cMod == CTM)
+                    Console.WriteLine(true);
+                else
+                    Console.WriteLine(false);
             }
 
 
