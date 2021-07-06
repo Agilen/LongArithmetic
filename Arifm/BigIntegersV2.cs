@@ -19,7 +19,7 @@ namespace Arifm
         }
         public BigIntegersV2()
         {
-            Digit = new UInt64[1] { 0 };
+            Digit = new UInt64[1] { 0};
         }
         public BigIntegersV2(UInt64[] digit)
         {
@@ -159,26 +159,36 @@ namespace Arifm
         }
         private static BigIntegersV2 LongDivMod(BigIntegersV2 a, BigIntegersV2 b)
         {
+            
             int maxLength = Math.Max(a.Size, b.Size);
             int k = BitLengthV2(b);
             int t = 0;
             BigIntegersV2 R = a;
             BigIntegersV2 C ;
+          
             while (R>=b)
             {
                 t = BitLengthV2(R);
                 C = LongShiftDigitsToHighDiv(b, t - k);
+                C = DeNull(C, true);
+
                 while (R < C)
                 {
                     if (R < C)
                     {
                         t--;
                         C = LongShiftDigitsToHighDiv(b, t - k);
+                        C = DeNull(C, true);
+
                     }
                 }
                 R = R - C;
+                R = DeNull(R, true);
+               
+                
             }
-
+            
+            
             return R;
         }
         private static BigIntegersV2 LongDiv(BigIntegersV2 a, BigIntegersV2 b)
@@ -187,6 +197,7 @@ namespace Arifm
             int maxLength = Math.Max(a.Size, b.Size);
             int k = BitLengthV2(b);
             int t = 0;
+            
             BigIntegersV2 R = a;
             BigIntegersV2 Q = new BigIntegersV2(new UInt64[b.Size+1]);
             BigIntegersV2 C ;
@@ -280,6 +291,10 @@ namespace Arifm
         }
         public BigIntegersV2 Pow(int n,int m)
         {
+            if (m == 0)
+            {
+                return new BigIntegersV2(new UInt64[2] { 1, 0 });
+            }
             BigIntegersV2 a = new BigIntegersV2(n);
             BigIntegersV2 res = new BigIntegersV2(new UInt64[2] {Convert.ToUInt64(n),0 });
             for(int i = 0; i < m-1; i++)
@@ -294,17 +309,21 @@ namespace Arifm
 
         private UInt64[] ReadDec(string n)
         {
+            
             n = n.Trim();
             UInt64[] numbers = new UInt64[n.Length];
             for(int i = 0; i < n.Length; i++)
             {
                 numbers[n.Length - 1 - i] = UInt64.Parse(n.Substring(i, 1));
             }
+          
+          
             BigIntegersV2 res=new BigIntegersV2();
             for(int i = 0; i < numbers.Length; i++)
             {
-                res = res + Pow(10, i) * new BigIntegersV2(numbers[i]);
+                res = Pow(10, i) * new BigIntegersV2(numbers[i]) + res;
             }
+           
             res = DelNull(res);
             numbers = new UInt64[res.Size];
             for(int i = 0; i < res.Size; i++)
@@ -338,6 +357,57 @@ namespace Arifm
             }
             return a;
         }
+
+        private BigIntegersV2 DelNull(BigIntegersV2 a, bool f)
+        {
+            int count = a.Size;
+            if (a.Size != 0)
+            {
+                for (int i = a.Size - 1; i >= 0; i--)
+                {
+                    if (a.GetValue(i) == 0)
+                        count--;
+                    else
+                        break;
+
+                }
+                
+
+                UInt64[] d = new UInt64[count];
+                for (int i = 0; i < d.Length; i++)
+                {
+                    d[i] = a.GetValue(i);
+                }
+                return new BigIntegersV2(d);
+            }
+            return a;
+        }
+
+        private static BigIntegersV2 DeNull(BigIntegersV2 a, bool f)
+        {
+            int count = a.Size;
+            if (a.Size != 0)
+            {
+                for (int i = a.Size - 1; i >= 0; i--)
+                {
+                    if (a.GetValue(i) == 0)
+                        count--;
+                    else
+                        break;
+
+                }
+
+
+                UInt64[] d = new UInt64[count];
+                for (int i = 0; i < d.Length; i++)
+                {
+                    d[i] = a.GetValue(i);
+                }
+                return new BigIntegersV2(d);
+            }
+            return a;
+        }
+
         private static UInt64[] LongAdd(UInt64[] A, UInt64[] B)
         {
             UInt64[] C = new UInt64[A.Length];
@@ -463,12 +533,15 @@ namespace Arifm
         private static int BitLengthV2(BigIntegersV2 Bl)
         {
             int k = 0;
-            for (int i = 0; i < Bl.Size; i++)
+            string str = "";
+            for (int i = Bl.Size - 1; i >= 0; i--)
             {
-                k += Convert.ToString((long)Bl.GetValue(i), 2).Length;
+                str += LeadZero(Convert.ToString((long)Bl.GetValue(i), 2), 64);
             }
+            k = DelLead(str).Length;
             return k;
         }
+
         private static bool IsCarryExist(UInt64 A, UInt64 B, UInt64 carry)
         {
             string a = "";
@@ -573,15 +646,19 @@ namespace Arifm
         private string DecOutput()
         {
             BigIntegersV2 LeftPart=new BigIntegersV2(Digit);
+            LeftPart = DelNull(LeftPart, true);
             BigIntegersV2 Mod;
+            BigIntegersV2 Ten = new BigIntegersV2(new UInt64[1] {10});
             string Output = "";
-            while (LeftPart > new BigIntegersV2(10))
-            {
-                Mod = LeftPart % new BigIntegersV2(10);
+         
+            while (LeftPart > Ten)
+            { 
+                Mod = LeftPart % Ten;
                 Output = Output.Insert(0, Convert.ToString(Mod.GetValue(0)));
-                LeftPart = LeftPart / new BigIntegersV2(10);
+                LeftPart = LeftPart / Ten;
             }
-            Output= Output.Insert(0, Convert.ToString(LeftPart.GetValue(0)));
+            
+            Output = Output.Insert(0, Convert.ToString(LeftPart.GetValue(0)));
             return Output;
         }
         public string Write(string n)
@@ -621,5 +698,14 @@ namespace Arifm
             }
             return str;
         }
+        private static string DelLead(string str)
+        {
+            while (str[0] == '0')
+            {
+                str = str.Substring(1);
+            }
+            return str;
+        }
+
     }
 }
