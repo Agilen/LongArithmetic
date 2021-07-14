@@ -136,24 +136,6 @@ namespace Arifm
                     Console.WriteLine(false);
             }
 
-            //void ToDec()
-            //{
-            //    ADec.Clear();
-            //    BDec.Clear();
-            //    CDec.Clear();
-            //    BigIntegersV2 dec;
-            //    for (int i = 0; i < A.Count; i++)
-            //    {
-            //        dec = new BigIntegersV2($"0x{A[i]}");
-            //        ADec.Add(dec.Write("10"));
-            //        dec = new BigIntegersV2($"0x{B[i]}");
-            //        BDec.Add(dec.Write("10"));
-            //        dec = new BigIntegersV2($"0x{C[i]}");
-            //        CDec.Add(dec.Write("10"));
-            //        Console.WriteLine(i + 1);
-            //    }
-            //}
-
             void ReadData(string Data)
             {
                 A.Clear();
