@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -11,16 +12,36 @@ namespace Arifm
     {
         static void Main(string[] args)
         {
+            {
+                int k = 0;
+                for (int i = 1; i < 100; i++)
+                {
+                    BigIntegersV2 a = new BigIntegersV2($"0b{CreatData()}");
+                    BigIntegersV2 b = new BigIntegersV2(i);
+                    BigIntegersV2 n = new BigIntegersV2($"0b{CreatMod()}");
+                    BigIntegersV2 res = new BigIntegersV2();
+                    res = res.LongModPowerMontgomery(a, b, n);
 
-            BigIntegersV2 bg = new BigIntegersV2("0x30A9896684869E8FA25194279F6624A19B1FCBB1C1AE5CFC3FF8CEC40C6306D");
+                    Console.WriteLine(a.Write("16"));
+                    Console.WriteLine(b.Write("16"));
+                    Console.WriteLine(n.Write("16"));
+                    if (res == res.LongModPowerBarrett(a, b, n))
+                    {
+                        Console.WriteLine(true);
+                        k++;
+                    }
+                    else
+                        Console.WriteLine(false);
+                    Console.WriteLine(res.Write("16"));
+                    Console.WriteLine();
 
-            Console.WriteLine(bg.Write("10"));
-            Console.WriteLine(bg.Write("16"));
+                }
+          
+            }
+
             List<string> A = new List<string>();
             List<string> B = new List<string>();
             List<string> C = new List<string>();
-
-
 
             string DataAdd = "Data/test_add.arith";
             string DataSub = "Data/test_sub.arith";
@@ -35,10 +56,9 @@ namespace Arifm
 
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
-                BigIntegersV2 aDec = new BigIntegersV2(a.Write("10"));
-                BigIntegersV2 bDec = new BigIntegersV2(b.Write("10"));
+              
 
-                BigIntegersV2 c = aDec + bDec;
+                BigIntegersV2 c = a + b;
                 BigIntegersV2 TestC = new BigIntegersV2($"0x{C[i]}");
 
                 if (TestC == c)
@@ -54,12 +74,11 @@ namespace Arifm
             for (int i = 0; i < 20; i++)
             {
 
-                Console.WriteLine(i);
+             
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
-                BigIntegersV2 aDec = new BigIntegersV2(a.Write("10"));
-                BigIntegersV2 bDec = new BigIntegersV2(b.Write("10"));
-                BigIntegersV2 c = aDec - bDec;
+
+                BigIntegersV2 c = a - b;
 
                 BigIntegersV2 TestC = new BigIntegersV2($"0x{C[i]}");
                 if (TestC == c)
@@ -75,15 +94,13 @@ namespace Arifm
             ReadData(DataMul);
             for (int i = 0; i < 20; i++)
             {
-                Console.Write(i);
-                Console.WriteLine();
+                
 
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
-                BigIntegersV2 aDec = new BigIntegersV2(a.Write("10"));
-                BigIntegersV2 bDec = new BigIntegersV2(b.Write("10"));
 
-                BigIntegersV2 c = aDec * bDec;
+
+                BigIntegersV2 c = a * b;
                 BigIntegersV2 TestC = new BigIntegersV2($"0x{C[i]}");
                 if (TestC == c)
                     Console.WriteLine(true);
@@ -101,10 +118,9 @@ namespace Arifm
             {
                 BigIntegersV2 a = new BigIntegersV2($"0x{A[i]}");
                 BigIntegersV2 b = new BigIntegersV2($"0x{B[i]}");
-                BigIntegersV2 aDec = new BigIntegersV2(a.Write("10"));
-                BigIntegersV2 bDec = new BigIntegersV2(b.Write("10"));
-                BigIntegersV2 c = aDec/ bDec;
-                BigIntegersV2 cMod = aDec % bDec;
+              
+                BigIntegersV2 c = a / b;
+                BigIntegersV2 cMod = a % b;
                 Ct = C[i].Substring(0,C[i].IndexOf(' '));
                 CtMod = C[i].Substring(C[i].IndexOf(' ')+1);
                 BigIntegersV2 CT = new BigIntegersV2($"0x{Ct}");
@@ -152,6 +168,28 @@ namespace Arifm
                     B.Add(lines[i + 1]);
                     C.Add(lines[i + 2]);
                 }
+            }
+
+            string CreatData()
+            {
+                Random ran = new Random();
+                string data = "0";
+                for(int i = 0; i < 127; i++)
+                {
+                    data += ran.Next(0, 2).ToString();
+                }
+                return data;
+            }
+
+            string CreatMod()
+            {
+                Random ran = new Random();
+                string data = "1";
+                for(int i = 0; i < 127; i++)
+                {
+                    data += ran.Next(0, 2).ToString();
+                }
+                return data;
             }
         }
 

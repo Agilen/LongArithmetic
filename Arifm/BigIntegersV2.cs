@@ -7,11 +7,20 @@ namespace Arifm
 {
     public class BigIntegersV2
     {
+        public enum Sign
+        {
+            Minus = -1,
+            Plus = 1
+        }
         private UInt64[] Digit;
-
         public BigIntegersV2(int n)
         {
-            Digit = new UInt64[1] { Convert.ToUInt64(n) };
+           
+            if (n < 0)
+            {
+                Sgn = Sign.Minus;
+            }
+            Digit = new UInt64[1] { Convert.ToUInt64(Math.Abs(n)) };
         }
         public BigIntegersV2(UInt64 n)
         {
@@ -19,14 +28,18 @@ namespace Arifm
         }
         public BigIntegersV2()
         {
-            Digit = new UInt64[1] { 0};
+            Digit = new UInt64[1] {0};
+        }
+        public BigIntegersV2(UInt64[] digit,Sign sign)
+        {
+            Sgn = sign;
+            Digit = digit;
+   
         }
         public BigIntegersV2(UInt64[] digit)
         {
             Digit = digit;
-   
         }
-        
         public BigIntegersV2(string digit)
         {
             Digit = ReadNumber(digit);
@@ -34,6 +47,7 @@ namespace Arifm
 
         public int Size => Digit.Length;
         public UInt64 GetValue(int i) => i < Size ? Digit[i] : (UInt64)0;
+        public Sign Sgn { get; private set; } = Sign.Plus;
         public static BigIntegersV2 operator +(BigIntegersV2 a, BigIntegersV2 b) => LongAdd(a, b);
         public static BigIntegersV2 operator -(BigIntegersV2 a, BigIntegersV2 b) => LongSub(a, b);
         public static BigIntegersV2 operator *(BigIntegersV2 a, BigIntegersV2 b) => LongMul(a, b);
@@ -50,16 +64,52 @@ namespace Arifm
         private static BigIntegersV2 LongSub(BigIntegersV2 a,BigIntegersV2 b)
         {
             int maxLength = Math.Max(a.Size, b.Size);
+            BigIntegersV2 max = new BigIntegersV2();
+            BigIntegersV2 min = new BigIntegersV2();
             UInt64[] C = new UInt64[maxLength];
+
+            if( (a.Sgn==Sign.Plus) && (b.Sgn == Sign.Minus) )
+            {
+                b.Sgn = Sign.Plus;
+                BigIntegersV2 res = a + b;
+                b.Sgn = Sign.Minus;
+                return res;
+            }
+            else if((a.Sgn==Sign.Minus) && (b.Sgn == Sign.Plus))
+            {
+                BigIntegersV2 res;
+                a.Sgn = Sign.Plus;
+                res = a + b;
+                a.Sgn = Sign.Minus;
+                res.Sgn = Sign.Minus;
+                return res;
+            }
+
+            if (a > b)
+            {
+                min = b;
+                max = a;
+            }
+            else if (b > a)
+            {
+                b.Sgn = Sign.Minus;
+                min = a;
+                max = b;
+            }
+            else
+            {
+                return new BigIntegersV2(0);
+            }
             UInt64 borrow = 0;
+
             for (int i = 0; i < maxLength; i++)
             {
-                C[i] = a.GetValue(i) - b.GetValue(i) - borrow;
-                if (b.GetValue(i) != 0 && (b.GetValue(i) + borrow) == 0)
+                C[i] = max.GetValue(i) - min.GetValue(i) - borrow;
+                if (min.GetValue(i) != 0 && (min.GetValue(i) + borrow) == 0)
                 {
                     borrow = 1;
                 }
-                else if (a.GetValue(i) >= (b.GetValue(i) + borrow))
+                else if (max.GetValue(i) >= (min.GetValue(i) + borrow))
                 {
                     borrow = 0;
                 }
@@ -69,7 +119,8 @@ namespace Arifm
                 }
 
             }
-            return new BigIntegersV2(C);
+
+            return new BigIntegersV2(C,max.Sgn);
         }
         private static BigIntegersV2 LongAdd(BigIntegersV2 a,BigIntegersV2 b)
         {
@@ -78,6 +129,32 @@ namespace Arifm
 
             UInt64 temp;
             UInt64 carry = 0;
+            if(a.Sgn==Sign.Minus && b.Sgn == Sign.Plus)
+            {
+                a.Sgn = Sign.Plus;
+                BigIntegersV2 res = b - a;
+                a.Sgn = Sign.Minus;
+                return res;
+            }
+
+            if (a.Sgn == Sign.Plus && b.Sgn == Sign.Minus)
+            {
+                b.Sgn = Sign.Plus;
+                BigIntegersV2 res = a - b;
+                b.Sgn = Sign.Minus;
+                return res;
+            }
+
+            if(a.Sgn==Sign.Minus && b.Sgn == Sign.Minus)
+            {
+                a.Sgn = Sign.Plus;
+                b.Sgn = Sign.Plus;
+                BigIntegersV2 res = b + a;
+                a.Sgn = Sign.Minus;
+                b.Sgn = Sign.Minus;
+                res.Sgn = Sign.Minus;
+                return res;
+            }
 
             for (int i = 0; i < maxSize; i++)
             {
@@ -97,30 +174,31 @@ namespace Arifm
             string bb = "";
             int maxLength = Math.Max(a.Size, b.Size);
             int lenght = maxLength * 2;
-
+            BigIntegersV2 max = LongMax(a, b);
+            BigIntegersV2 min = LongMin(a, b);
             UInt64[] temp = new UInt64[lenght];
             UInt64[] C = new UInt64[lenght];
-            UInt32[] A32 = new UInt32[lenght];
-            UInt32[] B32 = new UInt32[b.Size*2];
+           
 
-            for (int i = a.Size - 1; i >= 0; i--)
+            for (int i = max.Size - 1; i >= 0; i--)
             {
-                aa += LeadZero(Convert.ToString((long)a.GetValue(i), 16), 16);
+                aa += LeadZero(Convert.ToString((long)max.GetValue(i), 16), 16);
             }
 
-            for (int i = b.Size - 1; i >= 0; i--)
+            for (int i = min.Size - 1; i >= 0; i--)
             {
-                bb += LeadZero(Convert.ToString((long)b.GetValue(i), 16), 16);
+                bb += LeadZero(Convert.ToString((long)min.GetValue(i), 16), 16);
             }
-
+            UInt32[] A32 = new UInt32[aa.Length/8];
+            UInt32[] B32 = new UInt32[bb.Length/8];
             for (int i = 0; i < aa.Length; i += 8)
             {
                 A32[A32.Length - (i / 8) - 1] = (UInt32.Parse(aa.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
             }
 
-            for (int i = 0; i < bb.Length; i += 8)
+            for (int i = 0; i < bb.Length/8; i ++)
             {
-                B32[B32.Length - (i / 8) - 1] = (UInt32.Parse(bb.Substring(i, 8), System.Globalization.NumberStyles.HexNumber));
+                B32[i] = (UInt32.Parse(bb.Substring(bb.Length-((i+1)*8), 8), System.Globalization.NumberStyles.HexNumber));
             }
 
 
@@ -135,7 +213,17 @@ namespace Arifm
 
             }
 
-            return new BigIntegersV2(C);
+            if (a.Sgn == Sign.Minus && b.Sgn == Sign.Minus)
+            {
+                return new BigIntegersV2(C);
+            }
+            else if ((a.Sgn == Sign.Minus) || (b.Sgn == Sign.Minus))
+            {
+                return new BigIntegersV2(C, Sign.Minus);
+            }
+            else
+                return new BigIntegersV2(C);
+
 
         }
         private static int LongCmp(BigIntegersV2 A, BigIntegersV2 B)
@@ -159,11 +247,14 @@ namespace Arifm
         }
         private static BigIntegersV2 LongDivMod(BigIntegersV2 a, BigIntegersV2 b)
         {
-            
+            bool flag = false;
+            if (a.Sgn == Sign.Minus)
+                flag = true;
             int maxLength = Math.Max(a.Size, b.Size);
             int k = BitLengthV2(b);
             int t = 0;
             BigIntegersV2 R = a;
+            R.Sgn = Sign.Plus;
             BigIntegersV2 C ;
           
             while (R>=b)
@@ -187,7 +278,12 @@ namespace Arifm
                
                 
             }
-            
+
+            if (flag==true)
+            {
+                R.Sgn = Sign.Minus;
+                 R = R + b;    
+            }
             
             return R;
         }
@@ -199,6 +295,7 @@ namespace Arifm
             int t = 0;
             
             BigIntegersV2 R = a;
+            R.Sgn = Sign.Plus;
             BigIntegersV2 Q = new BigIntegersV2(new UInt64[b.Size+1]);
             BigIntegersV2 C ;
             while (R >= b)
@@ -220,8 +317,21 @@ namespace Arifm
             
 
             }
-           
-            return Q;
+
+            if (a.Sgn == Sign.Minus && b.Sgn == Sign.Minus)
+            {
+                return Q;
+            }
+            else if ((a.Sgn == Sign.Minus) || (b.Sgn == Sign.Minus))
+            {
+                Q.Sgn = Sign.Minus;
+                return Q;
+            }
+            else
+                return Q;
+          
+
+            
         }
         private static UInt64[] LongMulOneDigit(UInt32[] A, UInt32 B1, UInt32 B2)
         {
@@ -277,13 +387,22 @@ namespace Arifm
             }
 
             buf = LongAdd(C, C2);
-          
 
-            
 
-            for (int i = 0; i < buf.Length; i++)
+
+            if (Res.Length < buf.Length)
             {
-                Res[i] = buf[i];
+                for (int i = 0; i < Res.Length; i++)
+                {
+                    Res[i] = buf[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < buf.Length; i++)
+                {
+                    Res[i] = buf[i];
+                }
             }
 
             return Res;
@@ -293,10 +412,10 @@ namespace Arifm
         {
             if (m == 0)
             {
-                return new BigIntegersV2(new UInt64[2] { 1, 0 });
+                return new BigIntegersV2(1);
             }
             BigIntegersV2 a = new BigIntegersV2(n);
-            BigIntegersV2 res = new BigIntegersV2(new UInt64[2] {Convert.ToUInt64(n),0 });
+            BigIntegersV2 res = new BigIntegersV2(Convert.ToUInt64(n) );
             for(int i = 0; i < m-1; i++)
             {
                 res = res * a;
@@ -306,7 +425,6 @@ namespace Arifm
 
             return res;
         }
-
         private UInt64[] ReadDec(string n)
         {
             
@@ -332,7 +450,6 @@ namespace Arifm
             }
             return numbers;
         }
-
         private BigIntegersV2 DelNull(BigIntegersV2 a)
         {
             int count = a.Size;
@@ -357,7 +474,6 @@ namespace Arifm
             }
             return a;
         }
-
         private BigIntegersV2 DelNull(BigIntegersV2 a, bool f)
         {
             int count = a.Size;
@@ -378,11 +494,10 @@ namespace Arifm
                 {
                     d[i] = a.GetValue(i);
                 }
-                return new BigIntegersV2(d);
+                return new BigIntegersV2(d,a.Sgn);
             }
             return a;
         }
-
         private static BigIntegersV2 DeNull(BigIntegersV2 a, bool f)
         {
             int count = a.Size;
@@ -403,11 +518,10 @@ namespace Arifm
                 {
                     d[i] = a.GetValue(i);
                 }
-                return new BigIntegersV2(d);
+                return new BigIntegersV2(d, a.Sgn);
             }
             return a;
         }
-
         private static UInt64[] LongAdd(UInt64[] A, UInt64[] B)
         {
             UInt64[] C = new UInt64[A.Length];
@@ -541,7 +655,6 @@ namespace Arifm
             k = DelLead(str).Length;
             return k;
         }
-
         private static bool IsCarryExist(UInt64 A, UInt64 B, UInt64 carry)
         {
             string a = "";
@@ -585,17 +698,24 @@ namespace Arifm
             
             if (n.Length > 2)
             {
-                if (n.Substring(0, 2) == "0x" && n.Substring(2).All(ch => Uri.IsHexDigit(ch)))
+                if ((n.Substring(0, 2) == "0x") && (n.Substring(2).All(ch => Uri.IsHexDigit(ch))))
                 {
                     sys = 16;
                     m = 16;
                 }
-                else if (n.Substring(0, 2) == "0b" && n.Substring(2).All(ch => IsBinary(ch)))
+                else if ((n.Substring(0, 2) == "0b") && (n.Substring(2).All(ch => IsBinary(ch))))
                 {
                     sys = 64;
                     m = 2;
                 }
                 else if (n.All(ch => IsDec(ch)))
+                {
+                    return ReadDec(n);
+                }
+            }
+            else if (n.Length>0)
+            {
+                if (n.All(ch => IsDec(ch)))
                 {
                     return ReadDec(n);
                 }
@@ -612,7 +732,6 @@ namespace Arifm
 
             return Digit;
         }
-      
         private bool IsDec(char ch)
         {
             if (ch == '0' || ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5' || ch == '6' || ch == '7' || ch == '8' || ch == '9')
@@ -620,7 +739,6 @@ namespace Arifm
             else
                 return false;
         }
-       
         private bool IsBinary(char ch)
         {
             if (ch == '1' || ch == '0')
@@ -688,10 +806,20 @@ namespace Arifm
             {
                 output = DecOutput();
             }
+            output = DelLeadZero(output);
+            if (Sgn == Sign.Minus)
+            {
+                output = output.Insert(0, "-");
+            }
             return DelLeadZero(output);
         }
         private string DelLeadZero(string str)
         {
+            if (str.Length <= 0 || str=="0")
+            {
+                return "0";
+            }
+
             while (str[0] == '0')
             {
                 str = str.Substring(1);
@@ -706,6 +834,301 @@ namespace Arifm
             }
             return str;
         }
+        private static bool IsEvenNumber(BigIntegersV2 a)
+        {
+            BigIntegersV2 Zero = new BigIntegersV2(0);
+            BigIntegersV2 Two = new BigIntegersV2(2);
+            if (a % Two == Zero)
+            {
+                return true;
+            }
+            else
+                return false;
 
+        }
+        private static BigIntegersV2 LongMax(BigIntegersV2 a,BigIntegersV2 b)
+        {
+            if (a >= b)
+            {
+                return a;
+            }
+            else
+            {
+                return b;
+            }
+        }
+        private static BigIntegersV2 LongMin(BigIntegersV2 a, BigIntegersV2 b)
+        {
+            if (a <= b)
+            {
+                return a;
+            }
+            else
+            {
+                return b;
+            }
+        }
+        public  BigIntegersV2 SteinsAlgorithm(BigIntegersV2 a,BigIntegersV2 n)
+        {
+            BigIntegersV2 b = new BigIntegersV2();
+            BigIntegersV2 d = new BigIntegersV2(1);
+            BigIntegersV2 Two = new BigIntegersV2(2);
+            BigIntegersV2 Zero = new BigIntegersV2(0);
+
+            b = n;
+
+
+            while ((IsEvenNumber(a)==true) && (IsEvenNumber(b)==true))
+            {
+                a = a / Two;
+                b = b / Two;
+                d = d * Two;
+               
+            }
+            d = DelNull(d,true);
+            while (IsEvenNumber(a) == true)
+            {
+                a = a / Two;
+            }
+            while (b != Zero)
+            {
+                while (IsEvenNumber(b) == true)
+                {
+                    b = b / Two;
+                }
+                
+                (a, b) = (LongMin(a, b), LongAbs(a - b));
+            }
+
+            a = DelNull(a, true);
+            d = d * a;
+            n.Sgn = Sign.Plus;
+
+            return d;
+        }
+        private BigIntegersV2 LongAbs(BigIntegersV2 a)
+        {
+            a.Sgn = Sign.Plus;
+            return a;
+        }
+        public BigIntegersV2 BarrettReduction(BigIntegersV2 x,BigIntegersV2 n,BigIntegersV2 mu)
+        {
+            int k = n.Write("10").Length-1;
+            BigIntegersV2 r1 = new BigIntegersV2();
+            BigIntegersV2 r2 = new BigIntegersV2();
+            BigIntegersV2 q = new BigIntegersV2();
+            BigIntegersV2 r = new BigIntegersV2();
+            BigIntegersV2 z = new BigIntegersV2();
+
+            q = ((x / Pow(10, k - 1)) * mu) / Pow(10, k + 1);
+
+            r1 = x % Pow(10, k + 1);
+            r2 = (q * n) % Pow(10, k + 1);
+
+            //if (r1 >= r2)
+            r = r1 - r2;
+            r.Sgn = Sign.Plus;
+            //else
+            //    r = (Pow(10, k + 1) + r1) - r2;
+            int i = 0;
+            while (r >= n)
+            {
+                i++;
+                Console.WriteLine(i);
+                r = r - n;
+            }
+
+            return r;
+            
+        }
+        private static BigIntegersV2 BarrettReductionV2(BigIntegersV2 x,BigIntegersV2 n,BigIntegersV2 mu)
+        {
+            BigIntegersV2 q;
+            BigIntegersV2 r;
+            if (x <= n)
+            {
+                return x;
+            }
+            int k = BitLengthV2(n);
+           
+            q = KillDigits(x, k - 1);
+            //Console.WriteLine($"xtest:{x.Write("16")}");
+            //Console.WriteLine("Killq 127:"+q.Write("16"));
+            q = q * mu;
+            //Console.WriteLine($"q*mu:{q.Write("16")}");
+            q = DeNull(q, true);
+            q = KillDigits(q, k + 1);
+            //Console.WriteLine($"Killq 129:{q.Write("16")}");
+            q = DeNull(q, true);
+            r = q * n;
+            //Console.WriteLine($"r:{r.Write("16")}");
+            BigIntegersV2 test = LongShiftDigitToHigh(1, k + 1);
+            //Console.WriteLine($"1^129:{LongShiftDigitToHigh(1, k + 1).Write("16")}");
+            BigIntegersV2 r1 = new BigIntegersV2();
+            BigIntegersV2 r2 = new BigIntegersV2();
+            //Console.WriteLine($"xtest:{x.Write("16")}");
+            r1 = x % test;
+            r2 = r % test;
+            //Console.WriteLine($"r1:{r1.Write("10")}");
+            //Console.WriteLine($"r2:{r2.Write("16")}");
+            if (r1 >= r2)
+                r = r1 - r2;
+            else
+            {
+                r = (r1 - r2) + LongShiftDigitToHigh(1, k+1);
+            }
+          
+            //Console.WriteLine($"r:{r.Write("16")}");
+            //Console.WriteLine($"n:{n.Write("10")}");
+            while (r >= n)
+            {
+                r = r - n;
+                //Console.WriteLine($"r-n:{r.Write("16")}");
+            }
+            r = DeNull(r, true);
+            //Console.WriteLine($"rf:{r.Write("16")}");
+            return r;
+        }
+        private static BigIntegersV2 KillDigits(BigIntegersV2 a,int k)
+        {
+            string bit = a.Write("2");
+            bit = bit.Substring(0, bit.Length - k);
+            a = new BigIntegersV2($"0b{bit}");
+            return a;
+        }
+        public  BigIntegersV2 LongModPowerBarrett(BigIntegersV2 a,BigIntegersV2 b,BigIntegersV2 n)
+        {
+          
+            if (b == new BigIntegersV2())
+                return new BigIntegersV2(1);
+
+            BigIntegersV2 C = new BigIntegersV2(1);
+            BigIntegersV2 mu = new BigIntegersV2();
+            BigIntegersV2 buf;
+
+            string B = b.Write("2");
+            int m = B.Length;
+            int k = BitLengthV2(n);
+
+            mu = LongShiftDigitToHigh(1, 2 * k)/n;
+
+            if (a >= n)
+            {
+                a = BarrettReductionV2(a, n, mu);
+            }
+            //Console.WriteLine("pow:" + LongShiftDigitToHigh(1, 2 * k).Write("16"));
+            //Console.WriteLine("Mu:"+mu.Write("16"));
+            mu = DeNull(mu,true);
+
+            for(int i = m - 1; i >= 0; i--)
+            {
+                C = DeNull(C, true);
+                a = DeNull(a, true);
+                if (B[i] == '1')
+                {
+                    
+                    buf = a * C;
+                    
+                    C = BarrettReductionV2(buf, n, mu);
+                }
+                
+                a = BarrettReductionV2(a * a, n, mu);
+                
+                
+                
+            }
+            C = DeNull(C, true);
+            //Console.WriteLine($"C:{C.Write("16")}");
+            return C;
+
+        }
+        public BigIntegersV2 LongModPowerMontgomery(BigIntegersV2 a,BigIntegersV2 b,BigIntegersV2 n)
+        {
+            string bitB = DelLeadZero(b.Write("2"));
+            int m = bitB.Length;
+            BigIntegersV2 c = new BigIntegersV2(1);
+            BigIntegersV2 R = LongShiftDigitToHigh(1, BitLengthV2(n));
+
+            while (true)
+            {
+                if (SteinsAlgorithm(R, n) != new BigIntegersV2(1))
+                    R = R + new BigIntegersV2(1);
+                else
+                    break;
+            }
+
+
+            BigIntegersV2 x1 = new BigIntegersV2();
+            BigIntegersV2 y1 = new BigIntegersV2();
+            BigIntegersV2 RRev;
+            BigIntegersV2 d;
+
+            (d, x1, y1) = gcd(R, n, x1, y1);
+
+           
+            RRev = x1 % n;
+            a = Mont(a, n,R);
+            c = Mont(c, n,R);
+
+            for (int i = m - 1; i >= 0; i--)
+            {
+                if(bitB[i] == '1')
+                {
+                    c = Redc(a * c,n, RRev);
+                }
+                a = Redc(a * a, n,RRev);
+            }
+
+            return Redc(c,n, RRev);
+            
+        }
+        private BigIntegersV2 Mont(BigIntegersV2 a,BigIntegersV2 N,BigIntegersV2 R)
+        {
+            
+            BigIntegersV2 mont = new BigIntegersV2();
+
+            mont = (a * R) % N;
+
+            return mont;
+        }
+        private BigIntegersV2 Redc(BigIntegersV2 a,BigIntegersV2 n,BigIntegersV2 RRev)
+        {
+            BigIntegersV2 redc;
+          
+            redc = (a * RRev) % n;
+
+            return DelNull( redc,true);
+
+        }
+        private static (BigIntegersV2,BigIntegersV2,BigIntegersV2) gcd(BigIntegersV2 a,BigIntegersV2 b, BigIntegersV2 x, BigIntegersV2 y)
+        {
+            if (a == new BigIntegersV2(0))
+            {
+                x = new BigIntegersV2(0); y = new BigIntegersV2(1);
+                return (b,x,y);
+            }
+            BigIntegersV2 x1 = new BigIntegersV2();
+            BigIntegersV2 y1 = new BigIntegersV2();
+            BigIntegersV2 d=new BigIntegersV2();
+            d=DeNull(d, true);
+            x1 = DeNull(x1, true);
+            y1 = DeNull(y1, true);
+          
+            (d,x1,y1)= gcd(b % a, a, x1, y1);
+            
+            BigIntegersV2 ba = new BigIntegersV2();
+            ba = b / a;
+            ba = DeNull(ba, true);
+            BigIntegersV2 bax = new BigIntegersV2();
+            bax = ba * x1;
+          
+
+            x = y1 - bax;
+            
+            y = x1;
+            
+            return (DeNull(d,true), DeNull(x, true), DeNull(y, true));
+        }
     }
 }
+ 
